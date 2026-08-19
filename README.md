@@ -56,6 +56,14 @@ AI가 사용자의 마음을 판정하거나 진단하는 대신, 사용자가 �
 
 UI를 설계하거나 구현하기 전에는 [Hallmark 검토 노트](docs/references/hallmark.md)와 [Windows Classic UI 해석](docs/references/windows-classic-ui.md)을 함께 확인한다.
 
+## 디자인 방향
+
+[Hallmark](https://github.com/nutlope/hallmark)의 anti-AI-slop 원칙을 참고해 일반적인 AI 채팅·SaaS 화면처럼 보이는 획일적인 구성을 피한다. 다만 Hallmark를 정답으로 적용하지 않고 사용자가 제공한 참고자료, 감정 기록에 필요한 차분함, 접근성과 Inside Me의 제품 맥락을 우선한다.
+
+![Windows Classic 계산기 UI 참고 이미지](docs/references/2026-08-19-windows-classic-calculator.jpg)
+
+> 초기 UI 디자인 레퍼런스이며 실제 Inside Me 앱의 데모 화면은 아니다. 각진 창, 파란 제목 표시줄, 입체 버튼과 안으로 들어간 입력 영역의 촉감을 참고하되 그대로 복제하지 않는다. 첫 Android 화면을 구현한 뒤 실제 앱 스크린샷으로 교체한다.
+
 ## 개발 시작
 
 아직 Expo 프로젝트가 생성되지 않았으므로 설치, 실행, 테스트와 빌드 명령은 정의하지 않았다. 첫 개발 작업은 프로젝트 구조를 확정하고 Expo 앱을 생성한 뒤 Android 폰에서 QR로 시작 화면이 열리는지 확인하는 것이다.
