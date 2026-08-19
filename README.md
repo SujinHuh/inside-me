@@ -51,6 +51,7 @@ AI가 사용자의 마음을 판정하거나 진단하는 대신, 사용자가 �
 - [제품 대화 로그](docs/product-log.md): 사용자 발화와 당시 해석을 보존하는 추가 전용 기록
 - [미결정 질문](docs/open-questions.md): 구현 전 또는 프로토타입 후 답할 질문
 - [구현 계획](docs/implementation-plan.md): 사용자 행동으로 풀어 쓴 개발 순서와 완료 조건
+- [PR 작성 가이드](docs/pull-request-guide.md): 공통 PR 형식과 항목별 작성 원칙
 - [AI 개발 지침](AGENTS.md): 저장소 전반의 작업, 안전과 개인정보 규칙
 
 UI를 설계하거나 구현하기 전에는 [Hallmark 검토 노트](docs/references/hallmark.md)와 [Windows Classic UI 해석](docs/references/windows-classic-ui.md)을 함께 확인한다.
