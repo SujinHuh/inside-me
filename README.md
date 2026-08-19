@@ -51,10 +51,19 @@ AI가 사용자의 마음을 판정하거나 진단하는 대신, 사용자가 �
 - [제품 대화 로그](docs/product-log.md): 사용자 발화와 당시 해석을 보존하는 추가 전용 기록
 - [미결정 질문](docs/open-questions.md): 구현 전 또는 프로토타입 후 답할 질문
 - [구현 계획](docs/implementation-plan.md): 사용자 행동으로 풀어 쓴 개발 순서와 완료 조건
+- [지속 개발 워크플로](docs/development-workflow.md): 역할별 책임, 병렬 실행, 통합, 검증과 다음 작업 인계
 - [PR 작성 가이드](docs/pull-request-guide.md): 공통 PR 형식과 항목별 작성 원칙
 - [AI 개발 지침](AGENTS.md): 저장소 전반의 작업, 안전과 개인정보 규칙
 
 UI를 설계하거나 구현하기 전에는 [Hallmark 검토 노트](docs/references/hallmark.md)와 [Windows Classic UI 해석](docs/references/windows-classic-ui.md)을 함께 확인한다.
+
+## 디자인 방향
+
+[Hallmark](https://github.com/nutlope/hallmark)의 anti-AI-slop 원칙을 참고해 일반적인 AI 채팅·SaaS 화면처럼 보이는 획일적인 구성을 피한다. 다만 Hallmark를 정답으로 적용하지 않고 사용자가 제공한 참고자료, 감정 기록에 필요한 차분함, 접근성과 Inside Me의 제품 맥락을 우선한다.
+
+![Windows Classic 계산기 UI 참고 이미지](docs/references/2026-08-19-windows-classic-calculator.jpg)
+
+> 초기 UI 디자인 레퍼런스이며 실제 Inside Me 앱의 데모 화면은 아니다. 각진 창, 파란 제목 표시줄, 입체 버튼과 안으로 들어간 입력 영역의 촉감을 참고하되 그대로 복제하지 않는다. 첫 Android 화면을 구현한 뒤 실제 앱 스크린샷으로 교체한다.
 
 ## 개발 시작
 
