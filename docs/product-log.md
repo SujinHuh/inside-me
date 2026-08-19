@@ -1322,6 +1322,7 @@ AI가 제시한 제안과 아직 동의받지 않은 가정을 기록한다.
 - PR #2 병합 이후 문서 커밋 3개와 LOG-20260820-003을 새 기준선에 보존했다.
 - Q-022 제안 상태, Q-023의 AI 후보 우선 흐름, AI 턴 대화의 선행 감정·욕구 예시, 혼합·중립 감정 진입, 서버 폴더 생성 시점과 어휘 데이터 소유권 문서를 정리했다.
 - Node 24.15.0 LTS, npm 11.12.1, Expo SDK 54, Expo Router 6.0.24와 lockfile을 고정했다.
+- Expo 기반과 문서 보완을 로컬 커밋 `ff0c8ab`에 고정했다.
 - 기존 README·AGENTS·docs를 보존하고 루트에 `app/`, `app.json`, `package.json`, TypeScript·ESLint 설정과 최소 Inside Me 시작 화면을 생성했다.
 - Expo 패키지 호환성, TypeScript, ESLint, 정적 웹 번들, Metro 서버 기동과 HTTP 응답을 확인했다.
 - Android Expo Go 실기기는 사용자가 확인하지 않았으므로 완료로 대체하지 않았다.
