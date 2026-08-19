@@ -107,19 +107,19 @@ AI는 사용자의 마음을 판정하거나 진단하는 역할이 아니다. �
 
 ## 기술 스택과 실행 명령
 
-MVP 스택은 TypeScript, React Native, Expo와 Expo Router이고 서버 배포 구조는 MSA가 아닌 모듈형 모놀리스로 확정되었다. 첫 구현은 글 기록에서 감정 확인·로컬 저장·달력 다시 보기까지 작동시키는 흐름이며, Android Expo Go QR 실행으로 검증한 뒤 내부 APK와 PWA로 확장한다. 정확한 클라이언트·서버 폴더 구조는 아직 제안 상태이므로 사용자 확인 전에 대규모 스캐폴딩을 시작하지 않는다.
+MVP 스택은 TypeScript, React Native, Expo와 Expo Router이고 서버 배포 구조는 MSA가 아닌 모듈형 모놀리스로 확정되었다. 첫 구현은 글 기록에서 감정 확인·로컬 저장·달력 다시 보기까지 작동시키는 흐름이며, Android Expo Go QR 실행으로 검증한 뒤 내부 APK와 PWA로 확장한다. Q-022와 DEC-027에 따라 하나의 Expo 프로젝트 안에서 `app/`, `src/features/`, `src/core/`, `src/infrastructure/`, `src/navigation/`, `src/platform/`, `src/testing/`을 나누는 구조가 확정됐다. `app/api/`와 `server/`는 외부 AI 비밀 키가 필요한 2단계 전에는 생성하지 않는다.
 
-저장소 구조가 확정되고 프로젝트가 생성되면 이 섹션에 다음 명령을 실제 저장소 스크립트 기준으로 기록한다.
+실제 명령은 `package.json`을 원본으로 삼는다.
 
-- 설치
-- 로컬 개발 실행
-- 단위 테스트
-- 통합 또는 E2E 테스트
-- 린트
-- 타입 검사
-- 프로덕션 빌드
+- Node 버전 맞추기: `nvm use` (`.nvmrc`: 24.15.0 LTS)
+- 설치: `npm ci`
+- 로컬 개발 실행·Expo Go QR: `npm start`
+- Expo SDK 호환성: `npm run check:expo`
+- 린트: `npm run lint`
+- 타입 검사: `npm run typecheck`
+- 정적 웹 번들: `npm run export:web`
 
-명령이 문서화되기 전에는 존재하지 않는 스크립트를 추측하지 말고 저장소 설정 파일에서 실제 명령을 확인한다.
+단위·통합 테스트 명령은 IMP-003에서 테스트 러너를 고정하기 전까지 존재하지 않는다. Android 프로덕션 빌드는 내부 APK 단계에서 EAS 사용 승인 후 정의한다. 존재하지 않는 스크립트를 추측하지 말고 저장소 설정 파일에서 실제 명령을 확인한다.
 
 ## 의존성, 외부 서비스와 비밀정보
 

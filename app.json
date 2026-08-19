@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Inside Me",
+    "slug": "inside-me",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "inside-me",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "android": {
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

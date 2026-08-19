@@ -722,7 +722,7 @@ Hallmark는 랜딩 페이지와 웹 UI까지 폭넓게 다루므로 hero, naviga
 ```text
 inside-me/
 ├── app/                         # Expo Router의 얇은 화면·라우트
-│   └── api/                     # 필요할 때만 추가하는 얇은 서버 라우트
+│   └── api/                     # 2단계에서 필요할 때만 추가; IMP-002에서는 생성하지 않음
 ├── src/
 │   ├── features/                # home, calendar, text, voice, guided
 │   ├── core/                    # 감정 탐색과 일일 기록 규칙
@@ -730,7 +730,7 @@ inside-me/
 │   ├── navigation/              # 화면 사이 이동 계약
 │   ├── platform/                # 파일 등 운영체제 연동
 │   └── testing/                 # 공통 가짜 구현과 합성 fixture
-├── server/                      # 클라이언트에서 import하지 않는 비밀 키·공급자 로직
+├── server/                      # 2단계에서 필요할 때만 추가; IMP-002에서는 생성하지 않음
 ├── docs/
 └── package.json
 ```

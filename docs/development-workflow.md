@@ -75,6 +75,7 @@
 - Expo, TypeScript, 테스트와 린트 설정
 - 모든 `app/**`, 조합 루트와 Provider
 - `src/core/contracts/`, `src/testing/fakes/`의 공통 계약과 테스트 대역
+- `src/core/vocabulary/`의 구조화된 감정·욕구 어휘 데이터와 탐색 분류
 - `src/navigation/`, `src/platform/files/`의 조합·플랫폼 계약과 어댑터
 - 여러 기능이 함께 사용하는 디자인 토큰과 공통 상태 컴포넌트
 - 루트 배럴 파일
@@ -182,6 +183,7 @@
 - `src/core/contracts/entry-export.ts`: 저장소와 분리된 버전 포함 내보내기 데이터와 직렬화 계약
 - `src/core/contracts/emotion-explorer.ts`: 임시 탐색기와 실제 AI가 공유할 요청·응답 형태
 - `src/core/contracts/emotion-vocabulary.ts`: 감정·욕구 어휘, 탐색 분류와 자기 선택·AI 제안·최종 확정 결과의 구분
+- `src/core/vocabulary/`: IMP-003에서 주 에이전트가 고정하는 구조화된 어휘 데이터. 기능 작업자는 읽기 전용으로 사용함
 - `src/navigation/contracts.ts`: 라우트 이름과 화면 사이 전달 값
 - `src/platform/files/export-file-port.ts`: 내보내기 파일 생성, OS 공유, 취소·성공·실패 후 임시 cache 정리 포트
 - `src/testing/fakes/`: 기록 저장소와 탐색기 테스트 대역, 합성 fixture

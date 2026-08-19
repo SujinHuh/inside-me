@@ -3,6 +3,12 @@
 node_modules/
 dist/
 web-build/
+expo-env.d.ts
+*.tsbuildinfo
+.metro-health-check*
+.kotlin/
+/android/
+/ios/
 *.log
 .env
 .env.*
