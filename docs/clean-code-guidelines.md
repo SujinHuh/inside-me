@@ -24,7 +24,9 @@
 - `src/core/`는 React Native, Expo Router, 운영체제 파일 API와 실제 저장 기술을 알지 않는다.
 - `src/features/`는 사용자 행동과 화면 상태를 소유하고 core 계약과 application port를 사용한다.
 - `src/platform/`과 `src/infrastructure/`는 바깥 기술을 구현하지만 core가 이 구현을 가져오지 않는다.
+- `src/application/`은 사용자 행동 단위의 use case를 소유하고, `src/composition/`만 구체 adapter를 생성해 application port에 주입한다. 실제 앱이 `src/testing/` 구현을 가져오지 않는다.
 - `app/`의 라우트 파일은 실제 화면을 다시 구현하지 않고 feature 화면을 내보내거나 의존성을 조합하는 얇은 진입점으로 유지한다.
+- Expo Router가 `src/app/`을 라우트 루트로 해석할 수 있으므로 일반 조합 모듈에 `src/app/` 이름을 재사용하지 않는다.
 - 아직 존재하지 않는 Expo Router 경로를 수동 라우트 목록에 미리 등록하지 않는다. 실제 파일 경로와 Expo typed route를 단일 원본으로 사용한다.
 
 ## 런타임 데이터 경계

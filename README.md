@@ -6,7 +6,7 @@ AI가 사용자의 마음을 판정하거나 진단하는 대신, 사용자가 �
 
 ## 현재 상태
 
-현재는 **IMP-003B1 구조화 어휘·가짜 탐색기 완료, IMP-003B2 대기** 상태다. Node 24 LTS, Expo SDK 54와 Expo Router 기반의 최소 앱에 기록 계약과 전체 기록 parser를 두고, 대표 감정·욕구를 안정 ID와 주제로 검색하는 카탈로그 및 사용자 선택을 자동 확정하지 않는 가짜 탐색기를 추가했다. 8개 suite·34개 테스트와 타입·린트·Expo 로컬맵·웹 번들, 세 관점 독립 검수가 오류 0개로 통과해 `2f020fd`에 고정했다. 다음 조각은 명시적 사용자 요청 전 탐색기를 호출하지 않는 조합 루트, 공통 상태 UI와 로컬 저장 어댑터 선택이다. Android 실기기에서 Expo Go QR 실행은 아직 확인하지 않았다.
+현재는 **IMP-003B2 자동 검증·세 관점 독립 검수 통과, 구현 SHA 고정 중** 상태다. Node 24 LTS, Expo SDK 54와 Expo Router 기반의 최소 앱에 application·composition·infrastructure 경계를 두고, 사용자가 명시적으로 요청하기 전에는 보조 탐색기를 호출하지 않는 조합 서비스와 공통 로딩·빈 상태·오류 UI를 추가했다. Android 네이티브에서는 Expo Go에 포함된 `expo-sqlite`로 로컬 DB를 준비하고, alpha 상태인 웹 SQLite는 후속 PWA 단계로 미뤄 웹 번들을 분리했다. 첫 독립 검수 오류를 보완한 14개 suite·45개 테스트와 타입·린트·Expo 호환성·웹·Android 번들이 통과했고 세 관점 재검수의 확인된 오류도 0개다. Android 실기기에서 Expo Go QR 실행은 아직 확인하지 않았다.
 
 첫 구현에서는 Android 폰에서 다음 흐름을 끝까지 사용할 수 있게 만든다.
 
@@ -85,7 +85,7 @@ npm start
 - 린트: `npm run lint`
 - 정적 웹 번들: `npm run export:web`
 
-Jest 기반 단위·계약 테스트를 사용한다. 화면 테스트 확장과 로컬 저장 어댑터 선택은 `IMP-003`의 다음 조각에서 고정한다. Android Expo Go 실기기 검증은 사용자가 QR을 스캔해 성공을 확인해야 하며 웹 번들 성공으로 대체하지 않는다.
+Jest 기반 단위·계약·공통 상태 화면 테스트를 사용한다. Android 로컬 저장 기반은 `expo-sqlite`로 선택했으며 실제 기록 schema·CRUD·마이그레이션은 `IMP-101`에서 repository 계약과 함께 구현한다. Android Expo Go 실기기 검증은 사용자가 QR을 스캔해 성공을 확인해야 하며 번들 성공으로 대체하지 않는다.
 
 ## 개인정보와 개발 데이터
 

@@ -1639,3 +1639,37 @@ AI가 제시한 제안과 아직 동의받지 않은 가정을 기록한다.
 
 - 병합 승인 로그와 구현 계획 상태를 독립 검수해 확인된 오류 0개를 확인하고 커밋 `ddbad89`로 고정했다.
 - 이 SHA를 기록한 상태 문서 커밋을 만든 뒤 최신 `main`과 PR 전체 범위를 다시 확인하고, 같은 브랜치를 non-force push해 PR #4를 갱신한 다음 병합한다.
+
+---
+
+## LOG-20260820-014 — IMP-003B2 조합·공통 상태 UI·로컬 저장 기반 개발 시작
+
+- 일시: 2026-08-20
+- 종류: 다음 구현 시작, 앱 조합과 네이티브 저장 기술 제안
+- 관련 요구사항: REQ-015, REQ-019, REQ-020, REQ-023, REQ-026
+- 관련 결정: DEC-037, DEC-041, DEC-044, DEC-045
+- 관련 질문: Q-004, Q-027, Q-028
+- 상태: 자동 검증·세 관점 독립 검수 오류 0개, 구현 SHA 고정 중
+
+### 사용자 원문
+
+> 그럼 이어서 개잘 진행시켜줘
+
+### 해석과 구현 범위
+
+- 문맥상 `개잘`을 `개발`로 해석하고, 병합된 PR #4의 `main@fedf7e7`에서 새 브랜치 `feat/app-composition-storage`를 만들어 실행 원장의 IMP-003B2를 시작했다.
+- 구조화 어휘와 결정적 로컬 탐색기를 composition root에 연결하되, application service의 `begin`은 자기 선택만 보존하고 탐색기를 호출하지 않으며 `requestAssistantSuggestions`라는 명시적 요청에서만 후보를 가져오게 했다.
+- 앱에서 사용하는 결정적 탐색기를 `src/testing/fakes/`에서 `src/infrastructure/exploration/`으로 옮겨 production composition이 테스트 경로를 역참조하지 않게 했다.
+- 공통 로딩·빈 상태·오류 패널은 색상만으로 상태를 알리지 않고 텍스트·기호·접근성 label을 함께 제공하며, Windows Classic의 각진 패널과 눌림 상태를 기존 디자인 token으로 확장했다.
+- 공식 Expo SDK 54 문서의 Expo Go 포함·재시작 지속성 근거로 `expo-sqlite` 16.0.10을 네이티브 로컬 저장 기반의 제안 기본안으로 설치했다. 실제 기록 schema·CRUD·migration은 IMP-101로 남겼다.
+
+### 자동 검증과 남은 범위
+
+- 첫 웹 번들에서 `src/app` 조합 폴더가 Expo Router route root로 오인되어 네이티브 SQLite WASM 해석 오류가 발생했다. 조합 계층을 `src/composition/`으로 옮기고 웹에서는 SQLite Provider를 연결하지 않도록 수정했다.
+- 첫 설치 명령은 기본 shell의 Node 23·npm 10으로 실행되어 engine 경고가 있었고, 즉시 저장소에 고정한 Node 24.15.0·npm 11.12.1로 lockfile을 재생성한 뒤 `npm ci`로 1,091개 패키지를 다시 설치해 기준 환경을 복구했다.
+- 첫 검수 오류 수정 후 `npm test -- --no-cache` 14개 suite·45개, 타입·린트·온라인 Expo 호환성, 웹 정적 번들, Android Hermes 번들과 diff-check가 모두 통과했다.
+- 실제 일기·전사 fixture, 외부 AI·분석 전송과 비밀정보는 추가하지 않았다. SQLite DB 파일명은 비민감 고정값이며 기존 기록 schema를 만들지 않아 migration 영향은 아직 없다.
+- Android Expo Go 실기기 DB 초기화·복원, 큰 글자·스크린 리더, 실제 기록 CRUD·손상·migration, 웹 영속 저장과 앱 계층 암호화는 미검증이다.
+- 자동 검증 결과를 문서화한 뒤 아키텍처·클린 코드, 개인정보·감정 안전, 문서·실행 정합성 세 관점 독립 검수에서 확인된 오류 0개가 될 때까지 다음 단계로 넘어가지 않는다.
+- 첫 독립 검수에서 웹 공통 서비스 시작 오류 경계와 실제 composition 행동 테스트 누락, 빈 상태의 과도한 assertive 알림, REQ-015·Q-027 추적 누락을 확인했다. 공통 `AppServiceBoundary`, 실제 조합·Provider 수명 테스트, 상태별 live region과 문서 역링크를 보강한 뒤 자동 검증과 세 관점 재검수를 반복한다.
+- 수정 뒤 세 관점 재검수에서 이전 오류 해소와 새 확인 오류 0개를 확인했다. 검수된 구현·문서를 로컬 구현 커밋으로 고정한 뒤 원장에 SHA를 기록하고 원격 안전 검사를 거쳐 한국어 PR을 올린다.
