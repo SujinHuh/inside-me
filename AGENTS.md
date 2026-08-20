@@ -112,7 +112,7 @@ AI는 사용자의 마음을 판정하거나 진단하는 역할이 아니다. �
 
 ## 기술 스택과 실행 명령
 
-MVP 스택은 TypeScript, React Native, Expo와 Expo Router이고 서버 배포 구조는 MSA가 아닌 모듈형 모놀리스로 확정되었다. 첫 구현은 글 기록에서 감정 확인·로컬 저장·달력 다시 보기까지 작동시키는 흐름이며, Android Expo Go QR 실행으로 검증한 뒤 내부 APK와 PWA로 확장한다. Q-022와 DEC-027에 따라 하나의 Expo 프로젝트 안에서 `app/`, `src/features/`, `src/core/`, `src/infrastructure/`, `src/navigation/`, `src/platform/`, `src/testing/`을 나누는 구조가 확정됐다. `app/api/`와 `server/`는 외부 AI 비밀 키가 필요한 2단계 전에는 생성하지 않는다.
+MVP 스택은 TypeScript, React Native, Expo와 Expo Router이고 서버 배포 구조는 MSA가 아닌 모듈형 모놀리스로 확정되었다. 첫 구현은 글 기록에서 감정 확인·로컬 저장·달력 다시 보기까지 작동시키는 흐름이며, Android Expo Go QR 실행으로 검증한 뒤 내부 APK와 PWA로 확장한다. Q-022와 DEC-027에 따라 하나의 Expo 프로젝트 안에서 `app/`, `src/features/`, `src/application/`, `src/core/`, `src/composition/`, `src/infrastructure/`, `src/navigation/`, `src/platform/`, `src/testing/`을 나누는 구조가 확정됐다. `app/api/`와 `server/`는 외부 AI 비밀 키가 필요한 2단계 전에는 생성하지 않는다. Expo Router가 `src/app/`을 별도 라우트 루트로 해석할 수 있으므로 일반 조합 코드는 `src/composition/`에 둔다.
 
 실제 명령은 `package.json`을 원본으로 삼는다.
 

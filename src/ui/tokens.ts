@@ -2,6 +2,8 @@ export const colors = {
   canvas: '#d7d2c4',
   window: '#f4f0e6',
   windowBorder: '#3f3d36',
+  windowHighlight: '#fffdf6',
+  windowShadow: '#625f56',
   titleBar: '#244a86',
   titleText: '#ffffff',
   text: '#23221f',
@@ -9,6 +11,10 @@ export const colors = {
   panel: '#ffffff',
   panelBorder: '#8d887c',
   status: '#245c39',
+  stateMarker: '#244a86',
+  button: '#ded9cc',
+  buttonHighlight: '#fffdf6',
+  buttonShadow: '#514e46',
 } as const;
 
 export const spacing = {
@@ -27,6 +33,7 @@ export const typeScale = {
   heading: 22,
   bodyLineHeight: 24,
   headingLineHeight: 30,
+  stateMarker: 28,
 } as const;
 
 export const typography = {
@@ -37,6 +44,7 @@ export const typography = {
 } as const;
 
 export const borders = {
+  button: 2,
   panel: 1,
   window: 2,
 } as const;

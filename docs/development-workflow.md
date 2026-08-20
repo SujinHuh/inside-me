@@ -63,7 +63,7 @@ DEC-042에 따라 `시작해`는 완료한 기능 단위를 현재 `inside-me` �
 
 - 현재 요구사항, 결정, 질문과 구현 단계 확인
 - Expo 프로젝트, 설정, 잠금 파일과 실행 명령 관리
-- 모든 `app/**` 진입점, 조합 루트와 Provider 및 공통 라우트 연결
+- 모든 `app/**` 진입점, `src/composition/` 조합 루트와 Provider 및 공통 라우트 연결
 - 공통 데이터 계약, 저장·감정 탐색 포트와 디자인 토큰 고정
 - 병렬 작업의 범위와 파일 소유권 지정
 - 작업 결과 검수, 통합과 전체 흐름 실패 수정
@@ -75,6 +75,7 @@ DEC-042에 따라 `시작해`는 완료한 기능 단위를 현재 `inside-me` �
 - `package.json`과 잠금 파일
 - Expo, TypeScript, 테스트와 린트 설정
 - 모든 `app/**`, 조합 루트와 Provider
+- `src/composition/`, `src/application/exploration/`의 공통 앱 조합과 명시적 보조 요청 use case
 - `src/core/contracts/`, `src/testing/fakes/`의 공통 계약과 테스트 대역
 - `src/core/vocabulary/`의 구조화된 감정·욕구 어휘 데이터와 탐색 분류
 - `src/navigation/`, `src/platform/files/`의 조합·플랫폼 계약과 어댑터
@@ -187,7 +188,8 @@ DEC-042에 따라 `시작해`는 완료한 기능 단위를 현재 `inside-me` �
 - `src/core/vocabulary/`: IMP-003에서 주 에이전트가 고정하는 구조화된 어휘 데이터. 기능 작업자는 읽기 전용으로 사용함
 - `src/navigation/contracts.ts`: 실제 존재하는 Expo Router typed route와 안전한 전달 값. 아직 없는 경로를 수동 목록으로 미리 만들지 않음
 - `src/platform/files/export-file-port.ts`: 내보내기 파일 생성, OS 공유, 취소·성공·실패 후 임시 cache 정리 포트
-- `src/testing/fakes/`: 기록 저장소와 탐색기 테스트 대역, 합성 fixture
+- `src/testing/fakes/`: 기록 저장소 테스트 대역과 합성 fixture
+- `src/infrastructure/exploration/`: 실제 AI 전까지 앱에서 사용하는 로컬 결정적 탐색기 어댑터. 테스트 전용 경로에서 composition으로 역참조하지 않음
 - 디자인 토큰과 로딩·빈 상태·오류 상태 공통 컴포넌트
 
 각 포트의 정확한 export 시그니처, 성공 결과와 구분 가능한 오류 타입을 기반 커밋에서 고정한다. 작업자는 이 파일을 읽기 전용으로 사용하고, 공통 계약 변경은 주 에이전트가 영향 범위를 확인한 뒤 먼저 통합한다.
