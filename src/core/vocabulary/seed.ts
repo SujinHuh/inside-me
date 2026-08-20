@@ -1,0 +1,77 @@
+import type { EmotionVocabularyItem, NeedVocabularyItem, VocabularyItem } from '../contracts/emotion-vocabulary';
+
+const emotion = (
+  id: string,
+  label: string,
+  groups: EmotionVocabularyItem['groups'],
+  explorationTags: EmotionVocabularyItem['explorationTags'],
+  searchTerms: readonly string[] = [],
+): EmotionVocabularyItem => ({
+  id: `emotion-${id}`,
+  kind: 'emotion',
+  label,
+  groups,
+  searchTerms,
+  source: 'user-reference',
+  explorationTags,
+});
+
+const need = (
+  id: string,
+  label: string,
+  groups: NeedVocabularyItem['groups'],
+  searchTerms: readonly string[] = [],
+): NeedVocabularyItem => ({
+  id: `need-${id}`,
+  kind: 'need',
+  label,
+  groups,
+  searchTerms,
+  source: 'user-reference',
+  explorationTags: [],
+});
+
+// 사용자 참고 이미지에서 모바일 탐색 프로토타입에 필요한 대표 표현만 먼저 옮긴다.
+// 이 목록은 정답표나 완전한 분류가 아니며 직접 입력 경로를 항상 함께 제공한다.
+export const INITIAL_VOCABULARY: readonly VocabularyItem[] = [
+  emotion('joyful', '기쁜', ['joy'], ['comfortable', 'energized'], ['기쁨', '좋은']),
+  emotion('happy', '행복한', ['joy'], ['comfortable', 'energized'], ['행복']),
+  emotion('grateful', '감사한', ['joy'], ['comfortable', 'calm'], ['고마운', '고맙다']),
+  emotion('excited', '신나는', ['joy'], ['comfortable', 'energized'], ['흥분되는', '활기찬']),
+  emotion('comfortable', '편안한', ['calm'], ['comfortable', 'calm'], ['안심되는', '긴장이 풀리는']),
+  emotion('peaceful', '평온한', ['calm'], ['comfortable', 'calm'], ['고요한', '차분한']),
+  emotion('confident', '자신감 있는', ['confidence'], ['comfortable', 'energized'], ['든든한', '당당한']),
+  emotion('hopeful', '희망에 찬', ['confidence'], ['comfortable', 'energized'], ['기대되는', '힘이 솟는']),
+  emotion('worried', '걱정되는', ['worry'], ['uncomfortable'], ['염려되는', '근심하는']),
+  emotion('anxious', '불안한', ['worry'], ['uncomfortable', 'energized'], ['조바심', '초조한']),
+  emotion('afraid', '두려운', ['fear'], ['uncomfortable', 'energized'], ['무서운', '겁나는']),
+  emotion('overwhelmed', '막막한', ['fear', 'tension'], ['uncomfortable'], ['압도된', '진땀나는']),
+  emotion('tense', '긴장한', ['tension'], ['uncomfortable', 'energized'], ['떨리는', '불편한']),
+  emotion('frustrated', '답답한', ['tension', 'anger'], ['uncomfortable', 'energized'], ['갑갑한', '막힌']),
+  emotion('sad', '슬픈', ['sadness'], ['uncomfortable', 'calm'], ['울적한', '비참한']),
+  emotion('hurt', '서운한', ['sadness'], ['uncomfortable', 'calm'], ['섭섭한', '속상한']),
+  emotion('disappointed', '실망스러운', ['sadness'], ['uncomfortable', 'calm'], ['실망한', '기대가 무너진']),
+  emotion('lonely', '외로운', ['loneliness'], ['uncomfortable', 'calm'], ['고독한', '혼자인']),
+  emotion('tired', '지친', ['fatigue'], ['uncomfortable', 'calm'], ['피곤한', '노곤한']),
+  emotion('powerless', '무기력한', ['fatigue'], ['uncomfortable', 'calm'], ['힘이 없는', '의욕 없는']),
+  emotion('confused', '혼란스러운', ['confusion'], ['uncomfortable'], ['멍한', '갈피를 못 잡는']),
+  emotion('embarrassed', '당황스러운', ['confusion'], ['uncomfortable', 'energized'], ['민망한', '놀란']),
+  emotion('angry', '화나는', ['anger'], ['uncomfortable', 'energized'], ['분한', '짜증나는']),
+  emotion('wronged', '억울한', ['anger'], ['uncomfortable', 'energized'], ['부당한', '울화가 치미는']),
+  need('choice', '선택할 자유', ['autonomy'], ['선택', '자유']),
+  need('self-direction', '내 삶을 정할 자유', ['autonomy'], ['자기결정', '주도권']),
+  need('rest', '휴식', ['physical-wellbeing'], ['쉬기', '수면']),
+  need('safety', '안전', ['physical-wellbeing'], ['보호', '안정']),
+  need('care', '돌봄', ['physical-wellbeing', 'connection'], ['보살핌']),
+  need('connection', '연결', ['connection'], ['유대', '소속']),
+  need('understanding', '이해', ['connection'], ['알아주기', '공감']),
+  need('respect', '존중', ['connection', 'integrity'], ['인정', '배려']),
+  need('trust', '신뢰', ['connection'], ['믿음', '정서적 안전']),
+  need('play', '즐거움', ['play'], ['놀이', '재미']),
+  need('meaning', '의미', ['meaning'], ['가치', '중요함']),
+  need('contribution', '기여', ['meaning'], ['도움', '참여']),
+  need('authenticity', '진실성', ['integrity'], ['솔직함', '진정성']),
+  need('self-respect', '자기존중', ['integrity'], ['자존감', '존재감']),
+  need('peace', '평화', ['peace'], ['조화', '질서']),
+  need('growth', '성장', ['growth'], ['배움', '발전']),
+];
