@@ -4,7 +4,7 @@
 - 상태: IMP-003B2 완료, IMP-004 Android Expo Go 사용자 실기기 검증 대기
 - 개발 코드 상태: Node 24 LTS·Expo SDK 54·Expo Router 최소 앱 생성, Android Expo Go 실기기 미검증
 - 현재 개발 브랜치: `feat/app-composition-storage`
-- 원격 게시 상태: PR #5 `앱 조합과 로컬 저장 기반 추가` 열림·Ready·병합 가능, 사용자 병합 승인 완료, 승인 로그 독립 검수·PR 갱신 뒤 병합 대기
+- 원격 게시 상태: PR #5 `앱 조합과 로컬 저장 기반 추가` 열림·Ready·병합 가능, 승인 로그 `01fff84` 독립 검수 오류 0개, 상태 커밋 뒤 PR 갱신·병합 대기
 - 첫 검증 기기: 개발자 본인의 Android 폰
 - 첫 실행 방식: Expo Go에서 개발 서버 QR 코드 스캔
 - 관련 결정: DEC-020, DEC-021, DEC-022, DEC-025, DEC-027, DEC-028, DEC-029, DEC-030, DEC-034, DEC-035, DEC-036, DEC-037, DEC-038, DEC-039, DEC-040, DEC-041, DEC-042, DEC-043, DEC-044(제안됨), DEC-045(제안됨)
