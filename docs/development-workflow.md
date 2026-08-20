@@ -382,6 +382,7 @@ DEC-042에 따라 `시작해`는 완료한 기능 단위를 현재 `inside-me` �
 - 독립 커밋이 필요하면 같은 기반 커밋에서 별도 worktree와 브랜치를 만든다.
 - 공통 계약 변경은 먼저 통합한 뒤 기능 브랜치에 반영한다.
 - 모든 PR은 `.github/pull_request_template.md`와 `docs/pull-request-guide.md`를 따른다.
+- PR 제목과 본문은 한국어로 작성한다. 제목에는 영문 Conventional Commit 접두어를 사용하지 않고 변경 결과를 짧은 한국어 명사형으로 적으며, 코드 식별자·명령·파일명만 원문을 유지한다.
 - 커밋 전 `git diff --cached`로 현재 작업 범위 밖의 파일이 섞이지 않았는지 확인한다.
 - 기능 단위가 자동 검증과 독립 검수를 통과하면 검수 대상 diff를 기능 커밋 SHA A로 고정하고, 원장에 SHA A를 기록한 상태 문서 커밋 SHA B를 만든다. push 직전 HEAD가 SHA B이고 SHA B의 직접 부모가 SHA A인지 확인한다.
 - `SHA_A..SHA_B`의 name-status와 diff는 `README.md`, `docs/implementation-plan.md`, `docs/product-log.md`에서 완료 상태·SHA·다음 포인터를 기록하는 사실 변경만 허용한다. 코드·설정·테스트·AGENTS·workflow·requirements·decisions의 의미 변경 또는 허용 목록 밖 파일이 있으면 SHA A를 다시 정하고 자동 검증·독립 검수를 반복한다.

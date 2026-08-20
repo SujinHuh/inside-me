@@ -167,6 +167,7 @@ MVP 스택은 TypeScript, React Native, Expo와 Expo Router이고 서버 배포 
 ## PR 작성 규칙
 
 - 모든 PR은 `.github/pull_request_template.md` 형식을 사용하고 `docs/pull-request-guide.md`의 작성 원칙을 따른다.
+- PR 제목과 본문은 한국어로 작성한다. 제목에 `feat:`, `docs:` 같은 영문 Conventional Commit 접두어를 붙이지 않고, 코드 식별자·명령·파일명처럼 번역하면 의미가 흐려지는 항목만 원문을 유지한다.
 - 실제 변경에 해당하는 유형만 선택하고, 변경 내용과 이유를 현재 작업에 맞게 다시 작성한다.
 - 실행한 검증만 체크하며 실행하지 못한 검증은 이유를 남긴다.
 - 제품 동작이나 결정에 영향을 주면 관련 `REQ-*`, `DEC-*`, `LOG-*`를 연결한다.
