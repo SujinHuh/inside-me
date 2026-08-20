@@ -3,6 +3,7 @@ import type {
   DateKeyPolicy,
   DateKeyResult,
   MonthKey,
+  MonthKeyResult,
 } from '@/src/core/contracts';
 
 function pad(value: number): string {
@@ -33,7 +34,7 @@ export class LocalDateKeyPolicy implements DateKeyPolicy {
     return `${year}-${pad(date.getMonth() + 1)}` as MonthKey;
   }
 
-  parseDateKey(value: string): DateKeyResult<DateKey> {
+  parseDateKey(value: string): DateKeyResult {
     const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
     if (!match) {
       return { ok: false, error: 'invalid-date-key' };
@@ -49,7 +50,7 @@ export class LocalDateKeyPolicy implements DateKeyPolicy {
     return { ok: true, value: value as DateKey };
   }
 
-  parseMonthKey(value: string): DateKeyResult<MonthKey> {
+  parseMonthKey(value: string): MonthKeyResult {
     const match = /^(\d{4})-(\d{2})$/.exec(value);
     if (!match) {
       return { ok: false, error: 'invalid-month-key' };

@@ -35,7 +35,7 @@ export interface VocabularyQuery {
   explorationTag?: ExplorationTag;
 }
 
-export interface EmotionVocabulary {
+export interface EmotionNeedVocabulary {
   search(query: VocabularyQuery): readonly VocabularyItem[];
   findById(id: string): VocabularyItem | null;
 }

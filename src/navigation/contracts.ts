@@ -1,11 +1,4 @@
-import type { DateKey } from '@/src/core/contracts';
+import type { Href } from 'expo-router';
 
-export type AppRouteParams = {
-  home: undefined;
-  textEntry: { dateKey?: DateKey } | undefined;
-  emotionReview: { dateKey: DateKey };
-  calendar: undefined;
-  entryDetail: { dateKey: DateKey };
-};
-
-export type AppRouteName = keyof AppRouteParams;
+/** 실제 Expo Router 파일이 존재하는 경로만 공통 계약으로 공개한다. */
+export const homeHref = '/' satisfies Href;

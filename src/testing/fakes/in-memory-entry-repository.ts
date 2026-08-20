@@ -10,12 +10,32 @@ import {
   type RepositoryResult,
   type SaveEntryResult,
 } from '@/src/core/contracts';
-import { validateEntryDraft } from '@/src/core/entries/validate-entry-draft';
+import {
+  parseDailyEntry,
+  parseEntryDraft,
+  type EntryParseError,
+} from '@/src/core/entries/parse-entry';
 
 type IdFactory = () => string;
 
-function cloneEntry(entry: DailyEntry): DailyEntry {
-  return JSON.parse(JSON.stringify(entry)) as DailyEntry;
+function cloneEntry(entry: DailyEntry, dateKeyPolicy: DateKeyPolicy): DailyEntry {
+  const parsed = parseDailyEntry(entry, dateKeyPolicy);
+  if (!parsed.ok) throw new Error('Invalid in-memory entry state');
+  return parsed.value;
+}
+
+function invalidEntryMessage(error: EntryParseError): string {
+  switch (error) {
+    case 'empty-story':
+      return '이야기를 입력해 주세요.';
+    case 'invalid-date':
+      return '날짜 형식을 확인해 주세요.';
+    case 'invalid-input-method':
+    case 'invalid-structure':
+    case 'invalid-exploration':
+    case 'invalid-confirmation':
+      return '기록 내용을 다시 확인해 주세요.';
+  }
 }
 
 export class InMemoryEntryRepository implements EntryRepository {
@@ -28,10 +48,11 @@ export class InMemoryEntryRepository implements EntryRepository {
     seed: readonly DailyEntry[] = [],
   ) {
     seed.forEach((entry) => {
-      if (!this.dateKeyPolicy.isDateKey(entry.dateKey)) {
-        throw new Error('Invalid synthetic seed date');
+      const parsed = parseDailyEntry(entry, this.dateKeyPolicy);
+      if (!parsed.ok) {
+        throw new Error('Invalid synthetic seed entry');
       }
-      this.entriesByDate.set(entry.dateKey, cloneEntry(entry));
+      this.entriesByDate.set(parsed.value.dateKey, cloneEntry(parsed.value, this.dateKeyPolicy));
     });
   }
 
@@ -40,7 +61,7 @@ export class InMemoryEntryRepository implements EntryRepository {
       return this.invalidDate();
     }
     const entry = this.entriesByDate.get(dateKey);
-    return { ok: true, value: entry ? cloneEntry(entry) : null };
+    return { ok: true, value: entry ? cloneEntry(entry, this.dateKeyPolicy) : null };
   }
 
   async listByMonth(monthKey: MonthKey): Promise<RepositoryResult<readonly DailyEntry[]>> {
@@ -50,7 +71,7 @@ export class InMemoryEntryRepository implements EntryRepository {
     const entries = [...this.entriesByDate.values()]
       .filter((entry) => entry.dateKey.startsWith(`${monthKey}-`))
       .sort((left, right) => left.dateKey.localeCompare(right.dateKey))
-      .map(cloneEntry);
+      .map((entry) => cloneEntry(entry, this.dateKeyPolicy));
 
     return { ok: true, value: entries };
   }
@@ -60,44 +81,40 @@ export class InMemoryEntryRepository implements EntryRepository {
       ok: true,
       value: [...this.entriesByDate.values()]
         .sort((left, right) => left.dateKey.localeCompare(right.dateKey))
-        .map(cloneEntry),
+        .map((entry) => cloneEntry(entry, this.dateKeyPolicy)),
     };
   }
 
   async save(draft: EntryDraft): Promise<RepositoryResult<SaveEntryResult>> {
-    const validationError = validateEntryDraft(draft);
-    if (validationError) {
+    const parsed = parseEntryDraft(draft, this.dateKeyPolicy);
+    if (!parsed.ok) {
+      if (parsed.error === 'invalid-date') return this.invalidDate();
       return {
         ok: false,
         error: {
           code: 'invalid-entry',
-          safeMessage:
-            validationError === 'empty-story'
-              ? '이야기를 입력해 주세요.'
-              : '감정과 욕구 확인 상태를 확인해 주세요.',
+          safeMessage: invalidEntryMessage(parsed.error),
         },
       };
     }
-    if (!this.dateKeyPolicy.isDateKey(draft.dateKey)) {
-      return this.invalidDate();
-    }
 
-    const existing = this.entriesByDate.get(draft.dateKey);
+    const normalizedDraft = parsed.value;
+    const existing = this.entriesByDate.get(normalizedDraft.dateKey);
     const now = this.clock.now().toISOString();
     const entry: DailyEntry = {
-      ...draft,
+      ...normalizedDraft,
       schemaVersion: ENTRY_SCHEMA_VERSION,
       id: existing?.id ?? this.createId(),
       createdAt: existing?.createdAt ?? now,
       updatedAt: now,
     };
 
-    this.entriesByDate.set(draft.dateKey, cloneEntry(entry));
+    this.entriesByDate.set(normalizedDraft.dateKey, cloneEntry(entry, this.dateKeyPolicy));
     return {
       ok: true,
       value: {
         operation: existing ? 'updated' : 'created',
-        entry: cloneEntry(entry),
+        entry: cloneEntry(entry, this.dateKeyPolicy),
       },
     };
   }
