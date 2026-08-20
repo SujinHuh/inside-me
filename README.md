@@ -79,11 +79,12 @@ npm start
 ```
 
 - Expo 패키지 호환성: `npm run check:expo`
+- 단위·계약 테스트: `npm test`
 - 타입 검사: `npm run typecheck`
 - 린트: `npm run lint`
 - 정적 웹 번들: `npm run export:web`
 
-단위 테스트 러너와 로컬 저장 어댑터는 `IMP-003`에서 고정한다. Android Expo Go 실기기 검증은 사용자가 QR을 스캔해 성공을 확인해야 하며 웹 번들 성공으로 대체하지 않는다.
+Jest 기반 단위·계약 테스트를 사용한다. 화면 테스트 확장과 로컬 저장 어댑터 선택은 `IMP-003`의 다음 조각에서 고정한다. Android Expo Go 실기기 검증은 사용자가 QR을 스캔해 성공을 확인해야 하며 웹 번들 성공으로 대체하지 않는다.
 
 ## 개인정보와 개발 데이터
 

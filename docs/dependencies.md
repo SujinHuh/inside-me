@@ -22,6 +22,9 @@ Expo 공식 문서는 Node.js LTS를 요구하고, 2026-08-20 기준 앱 스토�
 | 화면 기반 | `react-native-safe-area-context`, `react-native-screens`, `expo-status-bar` | 안전 영역, 네이티브 화면, 상태 표시줄 처리 |
 | 웹 기반 | `react-dom`, `react-native-web` | 후속 PWA 검증을 위한 Expo 웹 실행 |
 | 개발 검증 | `typescript`, `eslint`, `eslint-config-expo`, `@types/react` | 엄격한 타입 검사와 Expo 권고 린트 |
+| 계약·화면 테스트 | `jest`, `jest-expo`, `@types/jest`, `@testing-library/react-native`, `react-test-renderer` | Expo 공식 Jest 환경, 공통 계약 회귀와 후속 React Native 화면 상호작용 검증 |
+
+테스트 러너는 [Expo의 Jest 단위 테스트 공식 가이드](https://docs.expo.dev/develop/unit-testing/)를 따른다. React와 renderer의 버전 차이로 렌더링 결과가 달라지지 않도록 `react`와 `react-test-renderer`를 19.1.0으로 정확히 맞췄다. 테스트 패키지는 앱 런타임 번들에 포함되지 않는 개발 의존성이다.
 
 ## 라이선스와 데이터 전송
 
@@ -34,7 +37,8 @@ Expo CLI를 사용하는 프로젝트 명령은 운영체제별 환경 변수 �
 
 ## 2026-08-20 npm audit 결과
 
-- Node 24.15.0·npm 11.12.1에서 `npm ci` 후 `npm audit`을 실행했을 때 18개(중간 9, 높음 9, 치명적 0)가 보고됐다.
+- IMP-002에서는 Node 24.15.0·npm 11.12.1에서 `npm ci` 후 `npm audit`을 실행했을 때 18개(중간 9, 높음 9, 치명적 0)가 보고됐다.
+- IMP-003A 테스트 개발 의존성 설치 후에는 19개(중간 10, 높음 9, 치명적 0)가 보고됐다. 새 중간 위험을 포함한 경로와 외부 배포 전 해소 가능성은 독립 검수와 SDK 상향 게이트에서 다시 확인한다.
 - 보고된 경로는 SDK 54의 Expo CLI·Metro·PostCSS·이미지 크기 분석·iOS Xcode 설정 관련 전이 의존성이다. 현재 앱은 외부 입력 파일을 서버에서 번들하거나 외부 사용자에게 배포하지 않는 로컬 개발 단계다.
 - npm이 제시한 자동 수정은 `expo` 57로의 주 버전 상향이며 현재 Expo Go SDK 54 검증 결정과 충돌한다. 따라서 `npm audit fix --force`는 실행하지 않았다.
 - 위험 수용 범위는 개발자 본인의 로컬 도그푸딩까지다. 외부 배포·신뢰할 수 없는 번들 입력·EAS 도입 전에 SDK 상향 또는 공식 보안 패치 가능성을 다시 검토한다.

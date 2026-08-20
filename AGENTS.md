@@ -116,11 +116,12 @@ MVP 스택은 TypeScript, React Native, Expo와 Expo Router이고 서버 배포 
 - 설치: `npm ci`
 - 로컬 개발 실행·Expo Go QR: `npm start`
 - Expo SDK 호환성: `npm run check:expo`
+- 단위·계약 테스트: `npm test`
 - 린트: `npm run lint`
 - 타입 검사: `npm run typecheck`
 - 정적 웹 번들: `npm run export:web`
 
-단위·통합 테스트 명령은 IMP-003에서 테스트 러너를 고정하기 전까지 존재하지 않는다. Android 프로덕션 빌드는 내부 APK 단계에서 EAS 사용 승인 후 정의한다. 존재하지 않는 스크립트를 추측하지 말고 저장소 설정 파일에서 실제 명령을 확인한다.
+화면 통합 테스트는 관련 화면이 생기는 IMP-003B 이후 추가한다. Android 프로덕션 빌드는 내부 APK 단계에서 EAS 사용 승인 후 정의한다. 존재하지 않는 스크립트를 추측하지 말고 저장소 설정 파일에서 실제 명령을 확인한다.
 
 ## 의존성, 외부 서비스와 비밀정보
 
