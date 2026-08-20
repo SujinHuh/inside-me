@@ -1,5 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { borders, colors, spacing, typography, typeScale } from '@/src/ui/tokens';
+
 export default function HomeScreen() {
   return (
     <View style={styles.screen}>
@@ -14,8 +16,8 @@ export default function HomeScreen() {
           <Text style={styles.heading}>나의 마음을 천천히 살펴봐요.</Text>
           <Text style={styles.body}>글 기록과 감정·욕구 탐색을 위한 기반을 준비했어요.</Text>
 
-          <View accessibilityLabel="Expo 기반 준비 완료" style={styles.statusPanel}>
-            <Text style={styles.statusText}>● Expo 기반 준비 완료</Text>
+          <View accessibilityLabel="Inside Me 준비 중" style={styles.statusPanel}>
+            <Text style={styles.statusText}>● Inside Me 준비 중</Text>
           </View>
         </View>
       </View>
@@ -26,56 +28,56 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   screen: {
     alignItems: 'center',
-    backgroundColor: '#d7d2c4',
+    backgroundColor: colors.canvas,
     flex: 1,
     justifyContent: 'center',
-    padding: 20,
+    padding: spacing.xl,
   },
   window: {
-    backgroundColor: '#f4f0e6',
-    borderColor: '#3f3d36',
-    borderWidth: 2,
+    backgroundColor: colors.window,
+    borderColor: colors.windowBorder,
+    borderWidth: borders.window,
     maxWidth: 480,
     width: '100%',
   },
   titleBar: {
-    backgroundColor: '#244a86',
-    borderBottomColor: '#3f3d36',
-    borderBottomWidth: 2,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    backgroundColor: colors.titleBar,
+    borderBottomColor: colors.windowBorder,
+    borderBottomWidth: borders.window,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
   },
   title: {
-    color: '#ffffff',
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: 0.4,
+    color: colors.titleText,
+    fontSize: typeScale.title,
+    fontWeight: typography.titleWeight,
+    letterSpacing: typography.titleLetterSpacing,
   },
   content: {
-    gap: 14,
-    padding: 22,
+    gap: spacing.lg,
+    padding: spacing.xxl,
   },
   heading: {
-    color: '#23221f',
-    fontSize: 22,
-    fontWeight: '700',
-    lineHeight: 30,
+    color: colors.text,
+    fontSize: typeScale.heading,
+    fontWeight: typography.headingWeight,
+    lineHeight: typeScale.headingLineHeight,
   },
   body: {
-    color: '#46433c',
-    fontSize: 16,
-    lineHeight: 24,
+    color: colors.textMuted,
+    fontSize: typeScale.body,
+    lineHeight: typeScale.bodyLineHeight,
   },
   statusPanel: {
-    backgroundColor: '#ffffff',
-    borderColor: '#8d887c',
-    borderWidth: 1,
-    marginTop: 4,
-    padding: 12,
+    backgroundColor: colors.panel,
+    borderColor: colors.panelBorder,
+    borderWidth: borders.panel,
+    marginTop: spacing.xs,
+    padding: spacing.md,
   },
   statusText: {
-    color: '#245c39',
-    fontSize: 15,
-    fontWeight: '600',
+    color: colors.status,
+    fontSize: typeScale.status,
+    fontWeight: typography.statusWeight,
   },
 });
