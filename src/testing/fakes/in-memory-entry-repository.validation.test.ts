@@ -71,11 +71,37 @@ describe('InMemoryEntryRepository 런타임 경계', () => {
     const malformed = [
       { emotions: { status: 'confirmed', items: [] }, needs: { status: 'unknown' } },
       {
-        emotions: { status: 'confirmed', items: [{ ...selectedEmotion }] },
+        emotions: {
+          status: 'confirmed',
+          items: [{ ...selectedEmotion, intensity: 3 }],
+        },
+        needs: { status: 'unknown' },
+      },
+      {
+        emotions: {
+          status: 'confirmed',
+          items: [{ ...selectedEmotion, intensity: 3 }],
+          representativeEmotionId: 'emotion-not-confirmed',
+        },
+        needs: { status: 'unknown' },
+      },
+      {
+        emotions: {
+          status: 'confirmed',
+          items: [
+            { ...selectedEmotion, intensity: 2 },
+            { ...selectedEmotion, label: '서로 다른 합성 감정 이름', intensity: 5 },
+          ],
+          representativeEmotionId: selectedEmotion.id,
+        },
         needs: { status: 'unknown' },
       },
       {
         emotions: { status: 'unknown', items: [selectedEmotion] },
+        needs: { status: 'unknown' },
+      },
+      {
+        emotions: { status: 'unknown', representativeEmotionId: selectedEmotion.id },
         needs: { status: 'unknown' },
       },
       { emotions: { status: 'unexpected' }, needs: { status: 'unknown' } },
@@ -90,6 +116,31 @@ describe('InMemoryEntryRepository 런타임 경계', () => {
       });
     }
     expect(expectOk(await repository.getByDate(original.dateKey))?.story).toBe(original.story);
+  });
+
+  it('대표 감정이 확정 감정 목록에 있을 때만 복수 감정을 저장한다', async () => {
+    const repository = createRepository();
+    const draft = createDraft();
+    const secondEmotion = {
+      id: 'emotion-grateful',
+      kind: 'emotion' as const,
+      label: '감사한',
+      source: 'catalog' as const,
+      intensity: 4 as const,
+    };
+    draft.exploration.finalConfirmed.emotions = {
+      status: 'confirmed',
+      items: [{ ...selectedEmotion, intensity: 2 }, secondEmotion],
+      representativeEmotionId: secondEmotion.id,
+    };
+
+    const saved = expectOk(await repository.save(draft)).entry;
+
+    expect(saved.exploration.finalConfirmed.emotions).toEqual({
+      status: 'confirmed',
+      items: [{ ...selectedEmotion, intensity: 2 }, secondEmotion],
+      representativeEmotionId: secondEmotion.id,
+    });
   });
 
   it('허용하지 않은 추가 필드는 제거하고 허용된 필드만 저장한다', async () => {

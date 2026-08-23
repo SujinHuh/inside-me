@@ -2,10 +2,10 @@
 
 - 작성일: 2026-08-19
 - 최종 상태 확인일: 2026-08-23
-- 상태: IMP-099 대표 감정 결정 완료, IMP-100 병렬 묶음 시작 대기
-- 개발 코드 상태: Node 24 LTS·Expo SDK 54·Expo Router 최소 앱 생성, Android Expo Go 기본 화면·재실행 확인 완료
-- 현재 상태 기록 브랜치: `docs/imp-004-resume` (`main@c664a42`에서 분기)
-- 원격 게시 상태: PR #5 `앱 조합과 로컬 저장 기반 추가`가 merge commit `c664a42`로 병합됨. 현재 `main` base·`docs/imp-004-resume` head의 PR #6 열림. IMP-004 완료와 IMP-099 제품 결정 문서를 같은 브랜치에 반영해 PR 갱신 후 병합 승인을 기다린다.
+- 상태: IMP-100 대표 감정 공통 계약 검수 완료, A·B·C 작업 지시서 작성 대기
+- 개발 코드 상태: Node 24 LTS·Expo SDK 54·Expo Router 최소 앱, Android Expo Go 기본 화면 검증, 대표 감정 계약·런타임 불변식 구현
+- 현재 개발 브랜치: `codex/imp-100-entry-contract` (`main@45fd306`에서 분기)
+- 원격 게시 상태: PR #6이 merge commit `45fd306`으로 병합됐다. IMP-100은 아직 로컬 구현·검수 단계이며 원격 push와 PR 생성 전이다.
 - 첫 검증 기기: 개발자 본인의 Android 폰
 - 첫 실행 방식: Expo Go에서 개발 서버 QR 코드 스캔
 - 관련 결정: DEC-020, DEC-021, DEC-022, DEC-025, DEC-027, DEC-028, DEC-029, DEC-030, DEC-034, DEC-035, DEC-036, DEC-037, DEC-038, DEC-039, DEC-040, DEC-041, DEC-042, DEC-043, DEC-044(제안됨), DEC-045(제안됨), DEC-046
@@ -31,7 +31,7 @@
 | IMP-003B2 | 조합 루트, 공통 상태 UI와 로컬 저장 어댑터 선택 | IMP-003B1 | 완료 | 명시적 사용자 요청 전 탐색기 미호출 조합·화면 테스트, 의존성 근거, 세 관점 독립 검수 오류 0개, `4003aaf` | IMP-004 |
 | IMP-004 | Android Expo Go 기본 화면 검증 | IMP-003B2 | 완료 | Android Expo Go SDK 54 기본 화면·재실행 사용자 확인, 앱 코드 `main@c664a42`, LOG-20260823-003 | IMP-099 |
 | IMP-099 | Q-008 달력 표정 의미 확정 | IMP-004 | 완료 | 대표 감정 중심 DEC-046, LOG-20260823-006, 결정 커밋 `6c0213c` | IMP-100 |
-| IMP-100 | 첫 기록 흐름 병렬 묶음 시작 | IMP-099 | 대기 | 공통 기준 SHA와 A·B·C 작업 지시서 3개 기록 | IMP-101~103 |
+| IMP-100 | 대표 감정 공통 계약과 첫 기록 흐름 병렬 묶음 시작 | IMP-099 | 진행 중 | 대표 감정 불변식 테스트, 공통 기준 SHA와 A·B·C 작업 지시서 3개 기록 | IMP-101~103 |
 | IMP-101 | A: 핵심 기록·로컬 저장·내보내기 | IMP-100 | 대기 | 저장소 계약 테스트 | IMP-104 |
 | IMP-102 | B: 글 기록·감정 확인·수정 UI | IMP-100 | 대기 | 가짜 저장소 기반 화면 테스트 | IMP-104 |
 | IMP-103 | C: 달력·상세·삭제 확인·내보내기 진입 UI | IMP-100 | 대기 | seeded 가짜 저장소 기반 화면 테스트 | IMP-104 |
@@ -39,7 +39,21 @@
 | IMP-105 | 타입 검사·린트·테스트·빌드와 데이터 안전 검증 | IMP-104 | 대기 | 명령·결과·환경·커밋 SHA | IMP-106 |
 | IMP-106 | Android에서 작성·수정·복원·내보내기·삭제 전체 흐름 확인 | IMP-105 | 대기 | 사용자 확인, Android 환경, 커밋 SHA | 1단계 완료 체크포인트 |
 
-현재 포인터는 `IMP-100` 병렬 묶음 시작 대기다. 조합·공통 상태 UI·Expo SQLite 네이티브 기반은 `4003aaf`에 고정됐고 PR #5를 통해 `main@c664a42`에 병합됐다. 2026-08-23 Android Expo Go 기본 화면·재실행 확인으로 IMP-004를 완료했고, 사용자가 달력 얼굴의 중심 의미를 직접 고른 대표 감정으로 확정해 IMP-099도 완료했다. 결정·참고 노트는 `6c0213c`에 고정했다. 정확한 감정 이름, 추가 감정 존재와 상세 화면의 복수 감정·강도를 보존하며, 제공된 다른 앱 화면은 전용 표정의 다양성과 작은 달력 셀 가독성만 참고한다. PR #6 병합 뒤 최신 `origin/main`을 공통 기준 SHA로 고정하고 IMP-100의 A·B·C 작업 지시서를 기록한다.
+현재 포인터는 `IMP-100` 진행 중이다. PR #6은 merge commit `45fd306`으로 병합됐고 이 SHA에서 `codex/imp-100-entry-contract` 브랜치를 만들었다. 확정 감정 묶음에 `representativeEmotionId`를 추가하고, 이 ID가 중복 없는 실제 확정 감정 목록 안에 있을 때만 parser가 저장을 허용하도록 구현했다. `unknown` 상태, 목록 밖 ID와 중복 ID는 거부하며 기존 기록을 바꾸지 않는다. 독립 검수에서 중복 ID 오류 1개를 수정한 뒤 재검수해 확인된 오류 0개를 확인했고 전체 검증도 통과했다. 이 구현을 공통 기준 SHA로 커밋한 뒤 A·B·C 지시서를 기록한다.
+
+### IMP-100 대표 감정 계약 자동 검증 기록
+
+- 기준: `main@45fd306`, 브랜치 `codex/imp-100-entry-contract`
+- 구현: 확정 감정에 필수 `representativeEmotionId` 추가, 확정 목록 포함 여부와 확정 감정 ID 유일성 런타임 검증, `unknown` 상태의 대표 감정 필드 거부
+- 데이터 영향: 실제 SQLite 기록 테이블과 사용자 기록 UI는 아직 없으므로 마이그레이션 대상 사용자 기록은 없다. IMP-101의 첫 schema와 저장 adapter가 이 계약을 처음 영속화한다.
+- `npm test`: 종료 코드 0, 14개 suite·46개 테스트 통과
+- `npm run typecheck`: 종료 코드 0
+- `npm run lint`: 종료 코드 0
+- `npm run check:expo`: 종료 코드 0, 네트워크 비활성 환경이라 Expo SDK 54의 로컬 bundled native module map 기준 확인
+- `npm run export:web`: 종료 코드 0, 정적 경로 3개 번들 완료
+- `node scripts/expo-cli.cjs export --platform android`: 종료 코드 0, Android Hermes 번들 완료
+- 독립 검수: 중복 ID가 대표 감정을 모호하게 만드는 오류 1개를 수정하고 회귀 테스트를 추가한 뒤 재검수 확인된 오류 0개
+- 미검증: 이번 계약 변경은 화면을 추가하지 않으므로 Android 사용자 동작 검증은 IMP-102~106에서 진행한다.
 
 ### IMP-002 자동 검증 기록
 
