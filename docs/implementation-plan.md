@@ -5,7 +5,7 @@
 - 상태: IMP-004 Android Expo Go 사용자 실기기 검증 완료, IMP-099 사용자 확인 대기
 - 개발 코드 상태: Node 24 LTS·Expo SDK 54·Expo Router 최소 앱 생성, Android Expo Go 기본 화면·재실행 확인 완료
 - 현재 상태 기록 브랜치: `docs/imp-004-resume` (`main@c664a42`에서 분기)
-- 원격 게시 상태: PR #5 `앱 조합과 로컬 저장 기반 추가`가 merge commit `c664a42`로 병합됨. 현재 `main` base·`docs/imp-004-resume` head의 PR #6 열림, IMP-004 완료 상태 커밋 뒤 같은 브랜치 push·기존 PR 갱신 대기
+- 원격 게시 상태: PR #5 `앱 조합과 로컬 저장 기반 추가`가 merge commit `c664a42`로 병합됨. 현재 `main` base·`docs/imp-004-resume` head의 PR #6 열림, IMP-004 완료 기록 `b51f42d` 고정, 상태 커밋 뒤 같은 브랜치 push·기존 PR 갱신 대기
 - 첫 검증 기기: 개발자 본인의 Android 폰
 - 첫 실행 방식: Expo Go에서 개발 서버 QR 코드 스캔
 - 관련 결정: DEC-020, DEC-021, DEC-022, DEC-025, DEC-027, DEC-028, DEC-029, DEC-030, DEC-034, DEC-035, DEC-036, DEC-037, DEC-038, DEC-039, DEC-040, DEC-041, DEC-042, DEC-043, DEC-044(제안됨), DEC-045(제안됨)
@@ -121,6 +121,7 @@
 - 사용자 Android 확인: Expo Go SDK 54에서 QR로 연결해 기본 화면과 오류 부재를 확인하고, Expo Go를 닫았다 다시 연 뒤 같은 화면이 나타나는 것을 확인함
 - 서버 Android 확인: Expo Router Android bundle 1,114개 모듈 완료
 - 상태: 앱 코드 `main@c664a42`의 IMP-004 사용자 실기기 검증 완료. 큰 글자·스크린 리더와 실제 기록 DB 재시작 복원은 후속 기능 범위에서 별도 검증
+- 고정 상태: 사용자 Android 검증과 IMP-004 완료 문서를 커밋 `b51f42d`로 고정함
 - Git 이력: 2026-08-20 구현·검수·PR 병합 뒤 2026-08-21과 2026-08-22에는 실제 파일 변경이 없었다. 빈 커밋이나 날짜를 소급한 커밋으로 개발 이력을 만들지 않는다.
 - 고정 상태: 상태 정정·서버 재개 기록과 독립 검수 오류 0개를 커밋 `5bb02e3`으로 고정함
 
