@@ -1,7 +1,7 @@
 # Inside Me 의존성 기준
 
 - 작성일: 2026-08-20
-- 적용 단계: IMP-002A, IMP-002B, IMP-003A, IMP-003B2
+- 적용 단계: IMP-002A, IMP-002B, IMP-003A, IMP-003B2, IMP-101~105
 - 패키지 관리자: npm 11.12.1
 - Node.js: 24.15.0 LTS
 - Expo SDK: 54 (`expo` 54.0.37, lockfile 기준)
@@ -22,6 +22,7 @@ Expo 공식 문서는 Node.js LTS를 요구하고, 2026-08-20 기준 앱 스토�
 | 화면 기반 | `react-native-safe-area-context`, `react-native-screens`, `expo-status-bar` | 안전 영역, 네이티브 화면, 상태 표시줄 처리 |
 | 웹 기반 | `react-dom`, `react-native-web` | 후속 PWA 검증을 위한 Expo 웹 실행 |
 | Android 로컬 저장 기반 | `expo-sqlite` 16.0.10 | Expo Go 안에서 구조화된 기록을 기기 DB에 보존하고 후속 repository·마이그레이션 어댑터를 구현 |
+| Android 내보내기 | `expo-file-system` 19.0.24, `expo-sharing` 14.0.8 | 검증된 JSON을 앱 cache의 임시 파일로 만들고 Android 공유 화면을 연 뒤 임시 파일을 정리 |
 | 개발 검증 | `typescript`, `eslint`, `eslint-config-expo`, `@types/react` | 엄격한 타입 검사와 Expo 권고 린트 |
 | 계약·화면 테스트 | `jest`, `jest-expo`, `@types/jest`, `@testing-library/react-native`, `react-test-renderer` | Expo 공식 Jest 환경, 공통 계약 회귀와 후속 React Native 화면 상호작용 검증 |
 
@@ -37,14 +38,16 @@ Expo 공식 문서는 Node.js LTS를 요구하고, 2026-08-20 기준 앱 스토�
 - Android 네이티브에서는 `SQLiteProvider`로 DB를 열고 WAL·외래 키를 활성화한다. 현재 단계는 저장 기술과 조합 경계만 고정하며 실제 기록 schema·CRUD·마이그레이션은 IMP-101에서 parser와 repository 계약 테스트를 적용한다.
 - SQLite 파일은 운영체제 앱 sandbox에 있지만 앱 계층 암호화는 아직 적용하지 않았다. 개인 로컬 도그푸딩 범위에서만 사용하고 외부 배포·기기 위협 모델 확장 전에 암호화와 백업 노출을 다시 검토한다.
 - 공식 문서상 웹 SQLite는 alpha이며 WASM·COOP·COEP 설정이 필요하다. Android 첫 흐름을 늦추지 않기 위해 웹 Provider는 현재 영속 저장을 연결하지 않고 후속 PWA 단계에서 별도 어댑터로 검증한다.
+- [`expo-file-system` SDK 54 공식 문서](https://docs.expo.dev/versions/v54.0.0/sdk/filesystem/)의 `File`·`Paths.cache`와 [`expo-sharing` SDK 54 공식 문서](https://docs.expo.dev/versions/v54.0.0/sdk/sharing/)의 로컬 파일 공유 API만 사용한다. 두 패키지는 MIT 라이선스이며 앱이 외부 서버로 직접 전송하지 않는다. 사용자가 Android 공유 대상 앱을 선택한 뒤의 파일 보관·전송은 선택한 앱의 책임이므로 UI에서 민감정보 안내를 표시한다.
 
-Expo CLI를 사용하는 프로젝트 명령은 운영체제별 환경 변수 문법 차이 없이 동일한 정책을 적용하기 위해 작은 Node 래퍼를 사용한다. 이 래퍼는 Expo CLI를 같은 Node 프로세스 버전으로 실행하고 텔레메트리 비활성화 변수만 추가한다. 린트는 Expo CLI를 거치지 않고 캐시 없는 ESLint를 직접 실행한다. 별도 외부 의존성이나 서비스는 추가하지 않는다.
+Expo CLI를 사용하는 프로젝트 명령은 운영체제별 환경 변수 문법 차이 없이 동일한 정책을 적용하기 위해 작은 Node 래퍼를 사용한다. 이 래퍼는 Expo CLI를 같은 Node 프로세스 버전으로 실행하고 텔레메트리 비활성화 변수만 추가한다. 린트는 Expo CLI를 거치지 않고 캐시 없는 ESLint를 직접 실행한다. 내보내기용 공식 Expo 로컬 모듈 외에 외부 서비스는 추가하지 않는다.
 
 ## 2026-08-20 npm audit 결과
 
 - IMP-002에서는 Node 24.15.0·npm 11.12.1에서 `npm ci` 후 `npm audit`을 실행했을 때 18개(중간 9, 높음 9, 치명적 0)가 보고됐다.
 - IMP-003A 테스트 개발 의존성 설치 후에는 19개(중간 10, 높음 9, 치명적 0)가 보고됐다. 새 중간 위험을 포함한 경로와 외부 배포 전 해소 가능성은 독립 검수와 SDK 상향 게이트에서 다시 확인한다.
 - IMP-003B2에서 `expo-sqlite` 16.0.10을 추가하고 고정 환경에서 `npm ci`한 뒤에도 19개(중간 10, 높음 9, 치명적 0)로 총수와 등급은 늘지 않았다.
+- IMP-101~105에서 `expo-file-system` 19.0.24와 `expo-sharing` 14.0.8을 직접 의존성으로 고정했다. 설치 결과 audit은 19개(중간 10, 높음 9, 치명적 0)로 기존 총수와 등급이 유지됐다.
 - 보고된 경로는 SDK 54의 Expo CLI·Metro·PostCSS·이미지 크기 분석·iOS Xcode 설정 관련 전이 의존성이다. 현재 앱은 외부 입력 파일을 서버에서 번들하거나 외부 사용자에게 배포하지 않는 로컬 개발 단계다.
 - npm이 제시한 자동 수정은 `expo` 57로의 주 버전 상향이며 현재 Expo Go SDK 54 검증 결정과 충돌한다. 따라서 `npm audit fix --force`는 실행하지 않았다.
 - 위험 수용 범위는 개발자 본인의 로컬 도그푸딩까지다. 외부 배포·신뢰할 수 없는 번들 입력·EAS 도입 전에 SDK 상향 또는 공식 보안 패치 가능성을 다시 검토한다.
