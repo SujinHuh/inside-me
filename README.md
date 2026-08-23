@@ -6,7 +6,7 @@ AI가 사용자의 마음을 판정하거나 진단하는 대신, 사용자가 �
 
 ## 현재 상태
 
-현재는 **IMP-003B2 완료, IMP-004 Android Expo Go 실기기 검증 대기** 상태다. Node 24 LTS, Expo SDK 54와 Expo Router 기반의 최소 앱에 application·composition·infrastructure 경계를 두고, 사용자가 명시적으로 요청하기 전에는 보조 탐색기를 호출하지 않는 조합 서비스와 공통 로딩·빈 상태·오류 UI를 추가했다. Android 네이티브에서는 Expo Go에 포함된 `expo-sqlite`로 로컬 DB를 준비하고, alpha 상태인 웹 SQLite는 후속 PWA 단계로 미뤄 웹 번들을 분리했다. 첫 독립 검수 오류를 보완한 14개 suite·45개 테스트와 타입·린트·Expo 호환성·웹·Android 번들이 통과했고 세 관점 재검수의 확인된 오류도 0개다. 구현·검수 기준은 `4003aaf`이며 Android 실기기에서 Expo Go QR 실행은 아직 확인하지 않았다.
+현재는 **IMP-004 Android Expo Go 실기기 검증 완료, IMP-099 사용자 확인 대기** 상태다. Node 24 LTS, Expo SDK 54와 Expo Router 기반의 최소 앱에 application·composition·infrastructure 경계를 두고, 사용자가 명시적으로 요청하기 전에는 보조 탐색기를 호출하지 않는 조합 서비스와 공통 로딩·빈 상태·오류 UI를 추가했다. Android 네이티브에서는 Expo Go에 포함된 `expo-sqlite`로 로컬 DB를 준비하고, alpha 상태인 웹 SQLite는 후속 PWA 단계로 미뤄 웹 번들을 분리했다. 첫 독립 검수 오류를 보완한 14개 suite·45개 테스트와 타입·린트·Expo 호환성·웹·Android 번들이 통과했고 세 관점 재검수의 확인된 오류도 0개다. 구현·검수 기준은 `4003aaf`, 병합 기준은 `main@c664a42`이며 사용자가 Android 폰의 Expo Go에서 기본 화면과 재실행을 확인했다. 현재 실행은 Expo Go 개발 컨테이너 안에서 이루어지므로 Mac 개발 서버가 필요하며, 독립 설치형 앱은 DEC-029에 따라 핵심 흐름 안정화 뒤 내부 APK 단계에서 만든다.
 
 첫 구현에서는 Android 폰에서 다음 흐름을 끝까지 사용할 수 있게 만든다.
 
