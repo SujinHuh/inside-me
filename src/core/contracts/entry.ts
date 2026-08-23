@@ -19,6 +19,14 @@ export type Confirmation<TItem> =
   | { status: 'confirmed'; items: readonly [TItem, ...TItem[]] }
   | { status: 'unknown' };
 
+export type EmotionConfirmation =
+  | {
+      status: 'confirmed';
+      items: readonly [ConfirmedEmotion, ...ConfirmedEmotion[]];
+      representativeEmotionId: ConfirmedEmotion['id'];
+    }
+  | { status: 'unknown' };
+
 export interface EntryExploration {
   userExpressed: readonly string[];
   userSelected: {
@@ -30,7 +38,7 @@ export interface EntryExploration {
     needs: readonly ExplorerSuggestion<NeedChoice>[];
   };
   finalConfirmed: {
-    emotions: Confirmation<ConfirmedEmotion>;
+    emotions: EmotionConfirmation;
     needs: Confirmation<NeedChoice>;
   };
 }

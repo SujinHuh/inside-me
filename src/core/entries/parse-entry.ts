@@ -95,14 +95,32 @@ function parseEmotionConfirmation(
 ): EntryExploration['finalConfirmed']['emotions'] | null {
   if (!isRecord(value)) return null;
   if (value.status === 'unknown') {
-    return Object.prototype.hasOwnProperty.call(value, 'items') ? null : { status: 'unknown' };
+    return Object.prototype.hasOwnProperty.call(value, 'items') ||
+      Object.prototype.hasOwnProperty.call(value, 'representativeEmotionId')
+      ? null
+      : { status: 'unknown' };
   }
-  if (value.status !== 'confirmed' || !Array.isArray(value.items) || value.items.length === 0) {
+  if (
+    value.status !== 'confirmed' ||
+    !Array.isArray(value.items) ||
+    value.items.length === 0 ||
+    !isNonBlankString(value.representativeEmotionId)
+  ) {
     return null;
   }
   const items = parseArray(value.items, parseConfirmedEmotion);
-  if (!items?.length) return null;
-  return { status: 'confirmed', items: [items[0], ...items.slice(1)] };
+  if (
+    !items?.length ||
+    new Set(items.map((item) => item.id)).size !== items.length ||
+    !items.some((item) => item.id === value.representativeEmotionId)
+  ) {
+    return null;
+  }
+  return {
+    status: 'confirmed',
+    items: [items[0], ...items.slice(1)],
+    representativeEmotionId: value.representativeEmotionId,
+  };
 }
 
 function parseNeedConfirmation(

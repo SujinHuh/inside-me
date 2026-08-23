@@ -1,4 +1,4 @@
-import type { Confirmation, ConfirmedEmotion } from './entry';
+import type { Confirmation, ConfirmedEmotion, EmotionConfirmation } from './entry';
 
 const invalidUnknownConfirmation: Confirmation<ConfirmedEmotion> = {
   status: 'unknown',
@@ -25,3 +25,27 @@ const invalidEmotionWithoutIntensity: ConfirmedEmotion = {
 
 void invalidEmptyConfirmation;
 void invalidEmotionWithoutIntensity;
+
+const invalidUnknownRepresentative: EmotionConfirmation = {
+  status: 'unknown',
+  // @ts-expect-error unknown 상태에는 대표 감정을 함께 저장할 수 없다.
+  representativeEmotionId: 'emotion-calm',
+};
+
+const invalidConfirmedWithoutRepresentative: EmotionConfirmation = {
+  status: 'confirmed',
+  items: [
+    {
+      id: 'emotion-calm',
+      kind: 'emotion',
+      label: '차분한',
+      source: 'catalog',
+      intensity: 3,
+    },
+  ],
+  // @ts-expect-error confirmed 상태에는 대표 감정 ID가 필요하다.
+  representativeEmotionId: undefined,
+};
+
+void invalidUnknownRepresentative;
+void invalidConfirmedWithoutRepresentative;
