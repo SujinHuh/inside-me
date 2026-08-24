@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -21,15 +21,19 @@ import type {
   NeedChoice,
   VocabularyItem,
 } from '@/src/core/contracts';
+import type { SelfExplorationService } from '@/src/application/exploration/self-exploration-service';
 import { borders, colors, spacing, typography, typeScale } from '@/src/ui/tokens';
 import { VocabularyPicker } from '../emotion-review/VocabularyPicker';
+import { AssistantExplorationPanel } from './AssistantExplorationPanel';
+import { useAssistantExploration } from './useAssistantExploration';
 
-type FlowStep = 'story' | 'emotions' | 'needs' | 'confirm';
+type FlowStep = 'story' | 'emotions' | 'needs' | 'assistant-consent' | 'assistant-results' | 'confirm';
 type FlowMessage = { kind: 'error' | 'success'; text: string };
 
 interface TextEntryFlowScreenProps {
   dateKey: DateKey;
   repository: EntryRepository;
+  selfExploration: Pick<SelfExplorationService, 'requestAssistantSuggestions'>;
   vocabulary: EmotionNeedVocabulary;
   initialDraft?: EntryDraft;
   onSaved?: () => void;
@@ -69,6 +73,7 @@ function initialRepresentativeId(draft?: EntryDraft): string | null {
 export function TextEntryFlowScreen({
   dateKey,
   repository,
+  selfExploration,
   vocabulary,
   initialDraft,
   onSaved,
@@ -82,6 +87,16 @@ export function TextEntryFlowScreen({
   );
   const [message, setMessage] = useState<FlowMessage | null>(null);
   const [saving, setSaving] = useState(false);
+  const mounted = useRef(true);
+  const saveInFlight = useRef(false);
+  const assistant = useAssistantExploration({ initialDraft, selfExploration });
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
 
   const toggleVocabularyItem = (item: VocabularyItem) => {
     setMessage(null);
@@ -90,6 +105,7 @@ export function TextEntryFlowScreen({
       if (exists) {
         removeEmotion(item.id);
       } else {
+        assistant.selectEmotionManually(item.id);
         setEmotions((current) => [
           ...current,
           { choice: { id: item.id, kind: 'emotion', label: item.label, source: 'catalog' }, intensity: 3 },
@@ -98,21 +114,24 @@ export function TextEntryFlowScreen({
       return;
     }
 
+    const needExists = needs.some((choice) => choice.id === item.id);
+    if (!needExists) assistant.selectNeedManually(item.id);
     setNeeds((current) => {
-      const exists = current.some((choice) => choice.id === item.id);
-      return exists
+      return needExists
         ? current.filter((choice) => choice.id !== item.id)
         : [...current, { id: item.id, kind: 'need', label: item.label, source: 'catalog' }];
     });
   };
 
   function removeEmotion(id: string) {
+    assistant.removeAcceptedEmotion(id);
     setRepresentativeEmotionId((current) => current === id ? null : current);
     setEmotions((current) => current.filter(({ choice }) => choice.id !== id));
     setMessage(null);
   }
 
   function removeNeed(id: string) {
+    assistant.removeAcceptedNeed(id);
     setNeeds((current) => current.filter((choice) => choice.id !== id));
     setMessage(null);
   }
@@ -152,6 +171,36 @@ export function TextEntryFlowScreen({
     );
   };
 
+  const addAssistantEmotion = (choice: EmotionChoice) => {
+    if (emotions.some((selected) => selected.choice.id === choice.id)) return;
+    setEmotions((current) => [...current, { choice: { ...choice }, intensity: 3 }]);
+    assistant.acceptEmotion(choice.id);
+    setMessage(null);
+  };
+
+  const addAssistantNeed = (choice: NeedChoice) => {
+    if (needs.some((selected) => selected.id === choice.id)) return;
+    setNeeds((current) => [...current, { ...choice }]);
+    assistant.acceptNeed(choice.id);
+    setMessage(null);
+  };
+
+  const requestAssistantSuggestions = async () => {
+    if (assistant.requesting) return;
+    setMessage(null);
+    const result = await assistant.request({
+      story,
+      emotions: emotions.map(({ choice }) => choice),
+      needs,
+    });
+    if (!result) return;
+    if (!result.ok) {
+      setMessage({ kind: 'error', text: result.error.safeMessage });
+      return;
+    }
+    setStep('assistant-results');
+  };
+
   const continueFromStory = () => {
     if (!story.trim()) {
       setMessage({ kind: 'error', text: '일기를 한 글자 이상 적어 주세요.' });
@@ -171,6 +220,8 @@ export function TextEntryFlowScreen({
   };
 
   const save = async () => {
+    if (saveInFlight.current) return;
+
     if (!representativeEmotionId || !emotions.some(({ choice }) => choice.id === representativeEmotionId)) {
       setMessage({ kind: 'error', text: '달력에서 먼저 보고 싶은 대표 감정을 골라 주세요.' });
       return;
@@ -189,10 +240,14 @@ export function TextEntryFlowScreen({
       exploration: {
         userExpressed: initialDraft?.exploration.userExpressed ?? [],
         userSelected: {
-          emotions: emotions.map(({ choice }) => ({ ...choice })),
-          needs: needs.map((choice) => ({ ...choice })),
+          emotions: emotions
+            .filter(({ choice }) => !assistant.acceptedEmotionIds.has(choice.id))
+            .map(({ choice }) => ({ ...choice })),
+          needs: needs
+            .filter((choice) => !assistant.acceptedNeedIds.has(choice.id))
+            .map((choice) => ({ ...choice })),
         },
-        aiSuggested: initialDraft?.exploration.aiSuggested ?? { emotions: [], needs: [] },
+        aiSuggested: assistant.suggestions,
         finalConfirmed: {
           emotions: {
             status: 'confirmed',
@@ -208,10 +263,25 @@ export function TextEntryFlowScreen({
       ...(initialDraft?.nextAction === undefined ? {} : { nextAction: initialDraft.nextAction }),
     };
 
+    saveInFlight.current = true;
     setSaving(true);
     setMessage(null);
-    const result = await repository.save(draft);
-    setSaving(false);
+    let result: Awaited<ReturnType<EntryRepository['save']>>;
+    try {
+      result = await repository.save(draft);
+    } catch {
+      if (mounted.current) {
+        setMessage({
+          kind: 'error',
+          text: '기록을 저장하지 못했어요. 작성한 내용은 그대로 남아 있어요.',
+        });
+      }
+      return;
+    } finally {
+      saveInFlight.current = false;
+      if (mounted.current) setSaving(false);
+    }
+    if (!mounted.current) return;
     if (!result.ok) {
       setMessage({
         kind: 'error',
@@ -332,7 +402,60 @@ export function TextEntryFlowScreen({
                 </View>
               )}
               <SecondaryButton label="감정 다시 고르기" onPress={() => setStep('emotions')} />
-              <PrimaryButton label="저장 전 확인하기" onPress={() => { setMessage(null); setStep('confirm'); }} />
+              <SecondaryButton
+                label="AI와 더 살펴보기"
+                onPress={() => { setMessage(null); setStep('assistant-consent'); }}
+              />
+              <PrimaryButton
+                label="내 선택으로 확인하기"
+                onPress={() => { setMessage(null); setStep('confirm'); }}
+              />
+            </>
+          )}
+
+          {step === 'assistant-consent' && (
+            <>
+              <AssistantExplorationPanel
+                mode="consent"
+                onAddEmotion={addAssistantEmotion}
+                onAddNeed={addAssistantNeed}
+                selectedEmotionIds={selectedEmotionIds}
+                selectedNeedIds={selectedNeedIds}
+                suggestions={assistant.suggestions}
+              />
+              <SecondaryButton
+                disabled={assistant.requesting}
+                label="욕구 선택으로 돌아가기"
+                onPress={() => { setMessage(null); setStep('needs'); }}
+              />
+              <SecondaryButton
+                disabled={assistant.requesting}
+                label="내 선택으로 계속하기"
+                onPress={() => { setMessage(null); setStep('confirm'); }}
+              />
+              <PrimaryButton
+                disabled={assistant.requesting}
+                label={assistant.requesting ? '후보 확인 중' : '안내 확인하고 후보 보기'}
+                onPress={() => { void requestAssistantSuggestions(); }}
+              />
+            </>
+          )}
+
+          {step === 'assistant-results' && (
+            <>
+              <AssistantExplorationPanel
+                mode="results"
+                onAddEmotion={addAssistantEmotion}
+                onAddNeed={addAssistantNeed}
+                selectedEmotionIds={selectedEmotionIds}
+                selectedNeedIds={selectedNeedIds}
+                suggestions={assistant.suggestions}
+              />
+              <SecondaryButton label="욕구 다시 고르기" onPress={() => setStep('needs')} />
+              <PrimaryButton
+                label="선택한 내용 확인하기"
+                onPress={() => { setMessage(null); setStep('confirm'); }}
+              />
             </>
           )}
 
@@ -378,6 +501,8 @@ function stepTitle(step: FlowStep): string {
     case 'story': return '글로 기록하기';
     case 'emotions': return '감정 살펴보기';
     case 'needs': return '욕구 살펴보기';
+    case 'assistant-consent': return 'AI 도움 확인';
+    case 'assistant-results': return 'AI 보조 후보';
     case 'confirm': return '내 선택 확인하기';
   }
 }
@@ -397,9 +522,14 @@ function PrimaryButton({ label, onPress, disabled = false }: FlowButtonProps) {
   );
 }
 
-function SecondaryButton({ label, onPress }: FlowButtonProps) {
+function SecondaryButton({ label, onPress, disabled = false }: FlowButtonProps) {
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.secondaryButton, pressed && styles.buttonPressed]}>
+    <Pressable
+      accessibilityRole="button"
+      disabled={disabled}
+      onPress={onPress}
+      style={({ pressed }) => [styles.secondaryButton, disabled && styles.buttonDisabled, pressed && styles.buttonPressed]}
+    >
       <Text style={styles.buttonText}>{label}</Text>
     </Pressable>
   );

@@ -15,7 +15,7 @@ type DraftLoadState =
 export default function TextEntryRoute() {
   const router = useRouter();
   const params = useLocalSearchParams<{ dateKey?: string | string[] }>();
-  const { dateKeyPolicy, entryRepository, vocabulary } = useAppServices();
+  const { dateKeyPolicy, entryRepository, selfExploration, vocabulary } = useAppServices();
   const requestedDate = Array.isArray(params.dateKey) ? params.dateKey[0] : params.dateKey;
   const parsedRequestedDate = requestedDate ? dateKeyPolicy.parseDateKey(requestedDate) : null;
   const today = dateKeyPolicy.fromDate(new Date());
@@ -73,6 +73,7 @@ export default function TextEntryRoute() {
         router.replace({ pathname: '/entries/[dateKey]', params: { dateKey: loadState.dateKey } })
       }
       repository={entryRepository}
+      selfExploration={selfExploration}
       vocabulary={vocabulary}
     />
   );
