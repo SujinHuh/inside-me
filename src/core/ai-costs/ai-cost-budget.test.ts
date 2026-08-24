@@ -59,6 +59,69 @@ describe('AI 비용 합성 예산', () => {
     expect(created.value.snapshot()).toEqual({ limitUsd: 1, spentUsd: 0, reservedUsd: 0.2 });
   });
 
+  it('coordinator 정산 뒤 snapshot을 갱신하고 남은 예산을 다시 예약한다', () => {
+    const created = AiCostBudgetCoordinator.create(1, 0.1);
+    expect(created.ok).toBe(true);
+    if (!created.ok) {
+      return;
+    }
+
+    expect(created.value.reserve(0.3).ok).toBe(true);
+    expect(created.value.snapshot()).toEqual({ limitUsd: 1, spentUsd: 0.1, reservedUsd: 0.3 });
+
+    expect(created.value.settle(0.25)).toEqual({
+      ok: true,
+      value: {
+        budget: { limitUsd: 1, spentUsd: 0.35, reservedUsd: null },
+        exceededAfterSettlement: false,
+      },
+    });
+    expect(created.value.snapshot()).toEqual({
+      limitUsd: 1,
+      spentUsd: 0.35,
+      reservedUsd: null,
+    });
+    expect(created.value.reserve(0.5).ok).toBe(true);
+  });
+
+  it('coordinator 취소 뒤 지출을 유지하고 다음 요청을 다시 예약한다', () => {
+    const created = AiCostBudgetCoordinator.create(1, 0.2);
+    expect(created.ok).toBe(true);
+    if (!created.ok) {
+      return;
+    }
+
+    expect(created.value.reserve(0.3).ok).toBe(true);
+    expect(created.value.cancel()).toEqual({
+      ok: true,
+      value: { limitUsd: 1, spentUsd: 0.2, reservedUsd: null },
+    });
+    expect(created.value.snapshot()).toEqual({
+      limitUsd: 1,
+      spentUsd: 0.2,
+      reservedUsd: null,
+    });
+    expect(created.value.reserve(0.8).ok).toBe(true);
+  });
+
+  it('coordinator 정산·취소 실패는 기존 snapshot을 바꾸지 않는다', () => {
+    const created = AiCostBudgetCoordinator.create(1, 0.1);
+    expect(created.ok).toBe(true);
+    if (!created.ok) {
+      return;
+    }
+
+    expect(created.value.reserve(0.2).ok).toBe(true);
+    const reservedSnapshot = created.value.snapshot();
+    expect(created.value.settle(Number.NaN)).toEqual({ ok: false, error: 'invalid-cost' });
+    expect(created.value.snapshot()).toEqual(reservedSnapshot);
+
+    expect(created.value.cancel().ok).toBe(true);
+    const cancelledSnapshot = created.value.snapshot();
+    expect(created.value.cancel()).toEqual({ ok: false, error: 'no-reservation' });
+    expect(created.value.snapshot()).toEqual(cancelledSnapshot);
+  });
+
   it('잔여 예산이 0이면 nano-USD보다 작은 양수 요청도 예약하지 않는다', () => {
     expect(
       reserveEstimatedAiCost({ limitUsd: 1, spentUsd: 1, reservedUsd: null }, 1e-13),

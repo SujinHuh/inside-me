@@ -147,6 +147,40 @@ describe('estimateMonthlyAiCost', () => {
     expect(result.value.monthlyUsd).toBeCloseTo(0.056, 10);
   });
 
+  it('턴형 세션의 일반 요청과 장문 요청에 각 요청별 단가를 적용한다', () => {
+    const textRequests = [
+      { inputTextTokens: 1_000, outputTextTokens: 100 },
+      { inputTextTokens: 272_001, outputTextTokens: 1_000 },
+      { inputTextTokens: 2_000, outputTextTokens: 200 },
+    ] as const;
+    const result = estimateMonthlyAiCost(OPENAI_LUNA_PRICE_PROFILE, {
+      monthlySessions: 1,
+      perSession: {
+        mode: 'turn-based-voice',
+        transcriptionMinutes: 0,
+        textRequests,
+        speechCharacters: 0,
+      },
+    });
+
+    const independentlyPricedTotal = textRequests.reduce((total, request) => {
+      const requestResult = estimateMonthlyAiCost(OPENAI_LUNA_PRICE_PROFILE, {
+        monthlySessions: 1,
+        perSession: { mode: 'text', ...request },
+      });
+      expect(requestResult.ok).toBe(true);
+      return requestResult.ok ? total + requestResult.value.perSessionUsd : total;
+    }, 0);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.value.perSessionUsd).toBeCloseTo(independentlyPricedTotal, 10);
+    expect(result.value.perSessionUsd).toBeCloseTo(0.1115604, 10);
+  });
+
   it('음성 길이를 1·3·5·10분으로 바꾼 자유 음성 비용을 재현한다', () => {
     const costs = [1, 3, 5, 10].map((minutes) => {
       const result = estimateMonthlyAiCost(OPENAI_LUNA_PRICE_PROFILE, {
