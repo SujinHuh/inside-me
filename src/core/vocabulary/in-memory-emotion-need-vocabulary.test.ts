@@ -12,19 +12,20 @@ describe('InMemoryEmotionNeedVocabulary', () => {
       explorationTag: 'uncomfortable',
     });
 
-    expect(results.map((item) => item.id)).toEqual([
+    expect(results.map((item) => item.id)).toEqual(expect.arrayContaining([
       'emotion-sad',
       'emotion-hurt',
-      'emotion-disappointed',
-    ]);
+    ]));
+    expect(results).toHaveLength(18);
     expect(results.every((item) => item.kind === 'emotion')).toBe(true);
   });
 
   it('표시 문구와 보조 검색어를 공백·호환 문자 차이 없이 찾는다', () => {
     const catalog = new InMemoryEmotionNeedVocabulary(INITIAL_VOCABULARY);
 
-    expect(catalog.search({ kind: 'emotion', text: '  섭섭  ' }).map((item) => item.id)).toEqual([
-      'emotion-hurt',
+    expect(catalog.search({ kind: 'emotion', text: '  섭섭  ' }).map((item) => item.label)).toEqual([
+      '서운한',
+      '섭섭한',
     ]);
     expect(catalog.search({ kind: 'need', text: '자존감' }).map((item) => item.id)).toEqual([
       'need-self-respect',
@@ -54,9 +55,14 @@ describe('InMemoryEmotionNeedVocabulary', () => {
       ...INITIAL_VOCABULARY[0],
       groups: ['autonomy'],
     } as unknown as VocabularyItem;
+    const wrongNeedConnection = {
+      ...INITIAL_VOCABULARY.find((item) => item.kind === 'emotion'),
+      needConnection: 'sometimes',
+    } as unknown as VocabularyItem;
 
     expect(() => new InMemoryEmotionNeedVocabulary(duplicate)).toThrow('중복된 어휘 ID');
     expect(() => new InMemoryEmotionNeedVocabulary([wrongPrefix])).toThrow('ID, 이름 또는 그룹');
     expect(() => new InMemoryEmotionNeedVocabulary([wrongGroup])).toThrow('ID, 이름 또는 그룹');
+    expect(() => new InMemoryEmotionNeedVocabulary([wrongNeedConnection])).toThrow('ID, 이름 또는 그룹');
   });
 });

@@ -23,11 +23,11 @@ import type {
 } from '@/src/core/contracts';
 import type { SelfExplorationService } from '@/src/application/exploration/self-exploration-service';
 import { borders, colors, spacing, typography, typeScale } from '@/src/ui/tokens';
-import { VocabularyPicker } from '../emotion-review/VocabularyPicker';
+import { WholeEmotionNeedsMap, type MapSectionId } from '../emotion-review/WholeEmotionNeedsMap';
 import { AssistantExplorationPanel } from './AssistantExplorationPanel';
 import { useAssistantExploration } from './useAssistantExploration';
 
-type FlowStep = 'story' | 'emotions' | 'needs' | 'assistant-consent' | 'assistant-results' | 'confirm';
+type FlowStep = 'story' | 'emotions' | 'assistant-consent' | 'assistant-results' | 'confirm';
 type FlowMessage = { kind: 'error' | 'success'; text: string };
 
 interface TextEntryFlowScreenProps {
@@ -70,6 +70,10 @@ function initialRepresentativeId(draft?: EntryDraft): string | null {
   return emotions?.status === 'confirmed' ? emotions.representativeEmotionId : null;
 }
 
+function initialEmotionUnknown(draft?: EntryDraft): boolean {
+  return draft?.exploration.finalConfirmed.emotions.status === 'unknown';
+}
+
 export function TextEntryFlowScreen({
   dateKey,
   repository,
@@ -85,10 +89,14 @@ export function TextEntryFlowScreen({
   const [representativeEmotionId, setRepresentativeEmotionId] = useState<string | null>(() =>
     initialRepresentativeId(initialDraft),
   );
+  const [emotionUnknown, setEmotionUnknown] = useState(() => initialEmotionUnknown(initialDraft));
   const [message, setMessage] = useState<FlowMessage | null>(null);
   const [saving, setSaving] = useState(false);
   const mounted = useRef(true);
   const saveInFlight = useRef(false);
+  const scrollView = useRef<ScrollView>(null);
+  const mapOffset = useRef(0);
+  const mapSectionOffsets = useRef<Partial<Record<MapSectionId, number>>>({});
   const assistant = useAssistantExploration({ initialDraft, selfExploration });
 
   useEffect(() => {
@@ -105,6 +113,7 @@ export function TextEntryFlowScreen({
       if (exists) {
         removeEmotion(item.id);
       } else {
+        setEmotionUnknown(false);
         assistant.selectEmotionManually(item.id);
         setEmotions((current) => [
           ...current,
@@ -151,6 +160,7 @@ export function TextEntryFlowScreen({
     }
     const id = createUserAddedId(kind, label);
     if (kind === 'emotion') {
+      setEmotionUnknown(false);
       setEmotions((current) =>
         current.some(({ choice }) => choice.id === id)
           ? current
@@ -173,6 +183,7 @@ export function TextEntryFlowScreen({
 
   const addAssistantEmotion = (choice: EmotionChoice) => {
     if (emotions.some((selected) => selected.choice.id === choice.id)) return;
+    setEmotionUnknown(false);
     setEmotions((current) => [...current, { choice: { ...choice }, intensity: 3 }]);
     assistant.acceptEmotion(choice.id);
     setMessage(null);
@@ -210,26 +221,29 @@ export function TextEntryFlowScreen({
     setStep('emotions');
   };
 
-  const continueFromEmotions = () => {
-    if (emotions.length === 0) {
-      setMessage({ kind: 'error', text: '가까운 감정을 하나 이상 골라 주세요.' });
+  const continueToConfirm = () => {
+    if (emotions.length === 0 && !emotionUnknown) {
+      setMessage({ kind: 'error', text: '가까운 감정을 하나 이상 고르거나 아직 모르겠어요를 선택해 주세요.' });
+      setStep('emotions');
       return;
     }
     setMessage(null);
-    setStep('needs');
+    setStep('confirm');
   };
 
   const save = async () => {
     if (saveInFlight.current) return;
 
-    if (!representativeEmotionId || !emotions.some(({ choice }) => choice.id === representativeEmotionId)) {
+    if (!emotionUnknown && (
+      !representativeEmotionId || !emotions.some(({ choice }) => choice.id === representativeEmotionId)
+    )) {
       setMessage({ kind: 'error', text: '달력에서 먼저 보고 싶은 대표 감정을 골라 주세요.' });
       return;
     }
 
     const confirmedEmotions = emotions.map<ConfirmedEmotion>(({ choice, intensity }) => ({ ...choice, intensity }));
     const firstConfirmedEmotion = confirmedEmotions[0];
-    if (!firstConfirmedEmotion) {
+    if (!emotionUnknown && !firstConfirmedEmotion) {
       setMessage({ kind: 'error', text: '가까운 감정을 하나 이상 골라 주세요.' });
       return;
     }
@@ -249,11 +263,13 @@ export function TextEntryFlowScreen({
         },
         aiSuggested: assistant.suggestions,
         finalConfirmed: {
-          emotions: {
-            status: 'confirmed',
-            items: [firstConfirmedEmotion, ...confirmedEmotions.slice(1)],
-            representativeEmotionId,
-          },
+          emotions: emotionUnknown
+            ? { status: 'unknown' }
+            : {
+              status: 'confirmed',
+              items: [firstConfirmedEmotion!, ...confirmedEmotions.slice(1)],
+              representativeEmotionId: representativeEmotionId!,
+            },
           needs: needs.length > 0
             ? { status: 'confirmed', items: [needs[0], ...needs.slice(1)] }
             : { status: 'unknown' },
@@ -310,6 +326,7 @@ export function TextEntryFlowScreen({
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
           automaticallyAdjustKeyboardInsets
+          ref={scrollView}
         >
           {step === 'story' && (
             <>
@@ -330,14 +347,39 @@ export function TextEntryFlowScreen({
 
           {step === 'emotions' && (
             <>
-              <Text style={styles.heading}>내가 느낀 감정을 먼저 찾아보세요.</Text>
-              <Text style={styles.description}>여러 개를 골라도 돼요. 목록은 정답표가 아니며 AI가 자동으로 확정하지 않아요.</Text>
-              <VocabularyPicker
-                kind="emotion"
-                onAdd={(label) => addCustomChoice('emotion', label)}
+              <Text style={styles.heading}>전체 지도에서 내 마음을 찾아보세요.</Text>
+              <Text style={styles.description}>충족·미충족 느낌과 욕구 8개 영역을 한 번에 보고 서로 다른 곳에서 여러 개를 골라도 돼요.</Text>
+              <WholeEmotionNeedsMap
+                onAdd={addCustomChoice}
                 onToggle={toggleVocabularyItem}
-                selectedIds={selectedEmotionIds}
+                selectedEmotionIds={selectedEmotionIds}
+                selectedNeedIds={selectedNeedIds}
                 vocabulary={vocabulary}
+                emotionUnknown={emotionUnknown}
+                onToggleEmotionUnknown={() => {
+                  if (emotionUnknown) {
+                    setEmotionUnknown(false);
+                    setMessage(null);
+                    return;
+                  }
+                  for (const selected of emotions) assistant.removeAcceptedEmotion(selected.choice.id);
+                  setEmotions([]);
+                  setRepresentativeEmotionId(null);
+                  setEmotionUnknown(true);
+                  setMessage(null);
+                }}
+                onJumpToSection={(sectionId) => {
+                  const sectionOffset = mapSectionOffsets.current[sectionId];
+                  if (sectionOffset === undefined) return;
+                  scrollView.current?.scrollTo({
+                    animated: true,
+                    y: Math.max(0, mapOffset.current + sectionOffset - spacing.sm),
+                  });
+                }}
+                onMapLayout={(event) => { mapOffset.current = event.nativeEvent.layout.y; }}
+                onSectionLayout={(sectionId, event) => {
+                  mapSectionOffsets.current[sectionId] = event.nativeEvent.layout.y;
+                }}
               />
               {emotions.map(({ choice, intensity }) => (
                 <View key={choice.id} style={styles.intensityRow}>
@@ -368,22 +410,6 @@ export function TextEntryFlowScreen({
                   </View>
                 </View>
               ))}
-              <SecondaryButton label="글 다시 보기" onPress={() => setStep('story')} />
-              <PrimaryButton label="욕구 살펴보기" onPress={continueFromEmotions} />
-            </>
-          )}
-
-          {step === 'needs' && (
-            <>
-              <Text style={styles.heading}>그 순간 나에게 중요했던 것은 무엇인가요?</Text>
-              <Text style={styles.description}>욕구는 여러 개를 고르거나 아직 모르는 채로 넘어갈 수 있어요.</Text>
-              <VocabularyPicker
-                kind="need"
-                onAdd={(label) => addCustomChoice('need', label)}
-                onToggle={toggleVocabularyItem}
-                selectedIds={selectedNeedIds}
-                vocabulary={vocabulary}
-              />
               {needs.length > 0 && (
                 <View accessibilityLabel="선택한 욕구" style={styles.selectedNeeds}>
                   {needs.map((need) => (
@@ -401,14 +427,14 @@ export function TextEntryFlowScreen({
                   ))}
                 </View>
               )}
-              <SecondaryButton label="감정 다시 고르기" onPress={() => setStep('emotions')} />
+              <SecondaryButton label="글 다시 보기" onPress={() => setStep('story')} />
               <SecondaryButton
                 label="AI와 더 살펴보기"
                 onPress={() => { setMessage(null); setStep('assistant-consent'); }}
               />
               <PrimaryButton
                 label="내 선택으로 확인하기"
-                onPress={() => { setMessage(null); setStep('confirm'); }}
+                onPress={continueToConfirm}
               />
             </>
           )}
@@ -425,13 +451,13 @@ export function TextEntryFlowScreen({
               />
               <SecondaryButton
                 disabled={assistant.requesting}
-                label="욕구 선택으로 돌아가기"
-                onPress={() => { setMessage(null); setStep('needs'); }}
+                label="마음 지도로 돌아가기"
+                onPress={() => { setMessage(null); setStep('emotions'); }}
               />
               <SecondaryButton
                 disabled={assistant.requesting}
                 label="내 선택으로 계속하기"
-                onPress={() => { setMessage(null); setStep('confirm'); }}
+                onPress={continueToConfirm}
               />
               <PrimaryButton
                 disabled={assistant.requesting}
@@ -451,32 +477,38 @@ export function TextEntryFlowScreen({
                 selectedNeedIds={selectedNeedIds}
                 suggestions={assistant.suggestions}
               />
-              <SecondaryButton label="욕구 다시 고르기" onPress={() => setStep('needs')} />
+              <SecondaryButton label="마음 지도 다시 보기" onPress={() => setStep('emotions')} />
               <PrimaryButton
                 label="선택한 내용 확인하기"
-                onPress={() => { setMessage(null); setStep('confirm'); }}
+                onPress={continueToConfirm}
               />
             </>
           )}
 
           {step === 'confirm' && (
             <>
-              <Text style={styles.heading}>달력에서 먼저 볼 대표 감정을 골라 주세요.</Text>
-              <Text style={styles.description}>대표 감정은 하루를 판정하는 점수가 아니라, 나중에 먼저 떠올리고 싶은 표시예요.</Text>
+              <Text style={styles.heading}>
+                {emotionUnknown ? '아직 모르는 마음으로 저장할까요?' : '달력에서 먼저 볼 대표 감정을 골라 주세요.'}
+              </Text>
+              <Text style={styles.description}>
+                {emotionUnknown
+                  ? '지금 이름 붙이지 못해도 괜찮아요. 기록을 다시 열어 나중에 감정을 고칠 수 있어요.'
+                  : '대표 감정은 하루를 판정하는 점수가 아니라, 나중에 먼저 떠올리고 싶은 표시예요.'}
+              </Text>
               {emotions.map(({ choice, intensity }) => (
                 <Pressable
                   accessibilityLabel={`${choice.label}: 대표 감정으로 선택`}
                   accessibilityRole="radio"
                   accessibilityState={{ selected: representativeEmotionId === choice.id }}
                   key={choice.id}
-                  onPress={() => { setRepresentativeEmotionId(choice.id); setMessage(null); }}
+                  onPress={() => { setRepresentativeEmotionId(choice.id); setEmotionUnknown(false); setMessage(null); }}
                   style={[styles.reviewChoice, representativeEmotionId === choice.id && styles.reviewChoiceSelected]}
                 >
                   <Text style={styles.choiceText}>{choice.label} · 강도 {intensity}</Text>
                 </Pressable>
               ))}
               <Text style={styles.summaryText}>선택한 욕구: {needs.length ? needs.map((need) => need.label).join(', ') : '아직 모르겠어요'}</Text>
-              <SecondaryButton label="감정 다시 고르기" onPress={() => setStep('emotions')} />
+              <SecondaryButton label="마음 지도 다시 보기" onPress={() => setStep('emotions')} />
               <PrimaryButton disabled={saving} label={saving ? '저장 중' : '이 내용으로 저장'} onPress={save} />
             </>
           )}
@@ -499,8 +531,7 @@ export function TextEntryFlowScreen({
 function stepTitle(step: FlowStep): string {
   switch (step) {
     case 'story': return '글로 기록하기';
-    case 'emotions': return '감정 살펴보기';
-    case 'needs': return '욕구 살펴보기';
+    case 'emotions': return '한 장 마음 지도';
     case 'assistant-consent': return 'AI 도움 확인';
     case 'assistant-results': return 'AI 보조 후보';
     case 'confirm': return '내 선택 확인하기';
