@@ -8,7 +8,7 @@ AI가 사용자의 마음을 판정하거나 진단하는 대신, 사용자가 �
 
 현재는 글 기록, 사용자 우선 감정·욕구 탐색, 선택적 보조 후보, 하루 한 기록의 로컬 저장, 달력·날짜 상세, 수정·내보내기·삭제 흐름을 구현했다. 자동 검증은 29개 suite·151개 테스트와 타입·린트·웹·Android 번들까지 통과했으며, Android 폰에서 전체 흐름을 직접 이어서 확인하는 `IMP-106`은 사용자 실기기 검증 대기다.
 
-실제 AI 공급자·API 키·서버·외부 전송은 아직 연결하지 않았다. 현재 `AI와 더 살펴보기`는 네트워크를 사용하지 않는 기기 내부 `DeterministicEmotionExplorer`를 호출한다. 공급자별 개인정보·비용 비교 문서인 `IMP-203`, 오프라인 비용 계산기·실제 호출 없는 합성 예산 차단 `IMP-204A/B`와 경계 회귀 테스트 `IMP-204R`은 완료했다. 실제 공급자를 호출하는 합성 계측 `IMP-204C`만 사용자 승인 대기다. 현재 실행은 Expo Go 개발 컨테이너 안에서 이루어지므로 Mac 개발 서버가 필요하며, 독립 설치형 앱은 핵심 흐름 안정화 뒤 내부 APK 단계에서 만든다.
+실제 AI 공급자·API 키·서버·외부 전송은 아직 연결하지 않았다. 현재 `AI와 더 살펴보기`는 네트워크를 사용하지 않는 기기 내부 `DeterministicEmotionExplorer`를 호출한다. 공급자별 개인정보·비용 비교 문서인 `IMP-203`, 오프라인 비용 계산기·실제 호출 없는 합성 예산 차단 `IMP-204A/B`와 경계 회귀 테스트 `IMP-204R`은 완료했다. 다음 원격 작업은 실제 공급자를 호출하지 않는 `IMP-204S` 합성 AI 평가 기반이며, 실제 공급자 합성 계측 `IMP-204C`는 사용자 승인 대기다. 현재 실행은 Expo Go 개발 컨테이너 안에서 이루어지므로 Mac 개발 서버가 필요하며, 독립 설치형 앱은 핵심 흐름 안정화 뒤 내부 APK 단계에서 만든다.
 
 첫 구현에서는 Android 폰에서 다음 흐름을 끝까지 사용할 수 있게 만든다.
 
@@ -65,15 +65,11 @@ AI가 사용자의 마음을 판정하거나 진단하는 대신, 사용자가 �
 
 ## 문서 안내
 
-- [제품 요구사항](docs/requirements.md): 현재 유효한 요구사항과 MVP 범위
-- [제품 결정](docs/decisions.md): 선택지, 결정 상태, 트레이드오프와 재검토 조건
-- [제품 대화 로그](docs/product-log.md): 사용자 발화와 당시 해석을 보존하는 추가 전용 기록
-- [미결정 질문](docs/open-questions.md): 구현 전 또는 프로토타입 후 답할 질문
-- [구현 계획](docs/implementation-plan.md): 사용자 행동으로 풀어 쓴 개발 순서와 완료 조건
-- [지속 개발 워크플로](docs/development-workflow.md): 역할별 책임, 병렬 실행, 통합, 검증과 다음 작업 인계
-- [클린 코드 지침](docs/clean-code-guidelines.md): 계층 방향, 런타임 데이터 검증, 이름·타입과 테스트 구조 기준
-- [PR 작성 가이드](docs/pull-request-guide.md): 공통 PR 형식과 항목별 작성 원칙
-- [AI 개발 지침](AGENTS.md): 저장소 전반의 작업, 안전과 개인정보 규칙
+- [전체 문서 목차](docs/README.md): 작업 유형별로 먼저 읽을 원본과 함께 확인할 문서를 안내한다.
+- [현재 구현 계획](docs/implementation-plan.md): 실행 상태, 완료 증거와 다음 작업을 확인한다.
+- [제품 요구사항](docs/requirements.md): 현재 유효한 요구사항과 MVP 범위를 확인한다.
+- [Android 실기기 체크리스트](docs/device-validation-checklist.md): 집에서 `IMP-106`을 실행할 때만 사용한다.
+- [AI 개발 지침](AGENTS.md): 저장소 전반의 강제 규칙, 안전과 개인정보 경계를 확인한다.
 
 UI를 설계하거나 구현하기 전에는 [Hallmark 검토 노트](docs/references/hallmark.md)와 [Windows Classic UI 해석](docs/references/windows-classic-ui.md)을 함께 확인한다.
 
