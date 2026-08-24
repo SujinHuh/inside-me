@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { StrictMode } from 'react';
 
 import { SelfExplorationService } from '@/src/application/exploration/self-exploration-service';
 import type { EmotionExplorer, EmotionExplorerResult } from '@/src/core/contracts';
@@ -28,6 +29,15 @@ function advanceToConfirmation() {
 
 function createSelfExploration(suggest: EmotionExplorer['suggest']): SelfExplorationService {
   return new SelfExplorationService({ suggest });
+}
+
+function getPressHandler(element: ReturnType<typeof screen.getByRole>): () => void {
+  let current = element;
+  while (typeof current.props.onPress !== 'function') {
+    if (!current.parent) throw new Error('Pressable handler를 찾을 수 없습니다.');
+    current = current.parent;
+  }
+  return current.props.onPress as () => void;
 }
 
 describe('TextEntryFlowScreen', () => {
@@ -122,6 +132,123 @@ describe('TextEntryFlowScreen', () => {
     fireEvent.press(screen.getByRole('button', { name: '감정 다시 고르기' }));
     fireEvent.press(screen.getByRole('button', { name: '글 다시 보기' }));
     expect(screen.getByDisplayValue('합성 테스트를 완료해서 마음이 여러 갈래였다.')).toBeTruthy();
+  });
+
+  it('저장 중에는 빠른 중복 요청을 막고 한 번만 저장한다', async () => {
+    const repository = createRepository();
+    const originalSave = repository.save.bind(repository);
+    let releaseSave: (() => void) | undefined;
+    const save = jest.spyOn(repository, 'save').mockImplementation((draft) =>
+      new Promise((resolve) => {
+        releaseSave = () => { void originalSave(draft).then(resolve); };
+      }),
+    );
+    render(
+      <TextEntryFlowScreen
+        dateKey={dateKey('2026-08-23')}
+        repository={repository}
+        selfExploration={selfExploration}
+        vocabulary={vocabulary}
+      />,
+    );
+    advanceToConfirmation();
+    fireEvent.press(screen.getByLabelText('기쁜: 대표 감정으로 선택'));
+
+    const saveButton = screen.getByRole('button', { name: '이 내용으로 저장' });
+    const pressSave = getPressHandler(saveButton);
+    act(() => {
+      pressSave();
+      pressSave();
+    });
+    const savingButton = screen.getByRole('button', { name: '저장 중' });
+
+    expect(save).toHaveBeenCalledTimes(1);
+    expect(savingButton.props.accessibilityState?.disabled ?? savingButton.props.disabled).toBe(true);
+
+    await act(async () => { releaseSave?.(); });
+    await waitFor(() => expect(screen.getByText('기록을 이 기기에 저장했어요.')).toBeTruthy());
+    expect(save).toHaveBeenCalledTimes(1);
+  });
+
+  it('화면을 벗어난 뒤 저장이 끝나면 늦은 화면 갱신을 폐기한다', async () => {
+    const repository = createRepository();
+    const originalSave = repository.save.bind(repository);
+    let releaseSave: (() => void) | undefined;
+    jest.spyOn(repository, 'save').mockImplementation((draft) =>
+      new Promise((resolve) => {
+        releaseSave = () => { void originalSave(draft).then(resolve); };
+      }),
+    );
+    const onSaved = jest.fn();
+    const view = render(
+      <TextEntryFlowScreen
+        dateKey={dateKey('2026-08-23')}
+        onSaved={onSaved}
+        repository={repository}
+        selfExploration={selfExploration}
+        vocabulary={vocabulary}
+      />,
+    );
+    advanceToConfirmation();
+    fireEvent.press(screen.getByLabelText('기쁜: 대표 감정으로 선택'));
+    fireEvent.press(screen.getByRole('button', { name: '이 내용으로 저장' }));
+    view.unmount();
+
+    await act(async () => { releaseSave?.(); });
+    expect(onSaved).not.toHaveBeenCalled();
+  });
+
+  it('React Strict Mode의 effect 재실행 뒤에도 저장 완료를 처리한다', async () => {
+    const onSaved = jest.fn();
+    render(
+      <StrictMode>
+        <TextEntryFlowScreen
+          dateKey={dateKey('2026-08-23')}
+          onSaved={onSaved}
+          repository={createRepository()}
+          selfExploration={selfExploration}
+          vocabulary={vocabulary}
+        />
+      </StrictMode>,
+    );
+    advanceToConfirmation();
+    fireEvent.press(screen.getByLabelText('기쁜: 대표 감정으로 선택'));
+    fireEvent.press(screen.getByRole('button', { name: '이 내용으로 저장' }));
+
+    await waitFor(() => expect(screen.getByText('기록을 이 기기에 저장했어요.')).toBeTruthy());
+    expect(onSaved).toHaveBeenCalledTimes(1);
+  });
+
+  it('저장소가 예외를 던져도 원문을 노출하지 않고 작성 내용을 보존한다', async () => {
+    const repository = createRepository();
+    const save = jest.spyOn(repository, 'save')
+      .mockRejectedValueOnce(new Error('합성 일기 원문과 저장소 내부 경로'));
+    render(
+      <TextEntryFlowScreen
+        dateKey={dateKey('2026-08-23')}
+        repository={repository}
+        selfExploration={selfExploration}
+        vocabulary={vocabulary}
+      />,
+    );
+    advanceToConfirmation();
+    fireEvent.press(screen.getByLabelText('기쁜: 대표 감정으로 선택'));
+    fireEvent.press(screen.getByRole('button', { name: '이 내용으로 저장' }));
+
+    await waitFor(() => expect(screen.getByText('기록을 저장하지 못했어요. 작성한 내용은 그대로 남아 있어요.')).toBeTruthy());
+    expect(screen.queryByText('저장소 내부 경로')).toBeNull();
+    expect(screen.getByLabelText('기쁜: 대표 감정으로 선택').props.accessibilityState.selected).toBe(true);
+
+    fireEvent.press(screen.getByRole('button', { name: '감정 다시 고르기' }));
+    fireEvent.press(screen.getByRole('button', { name: '글 다시 보기' }));
+    expect(screen.getByDisplayValue('합성 테스트를 완료해서 마음이 여러 갈래였다.')).toBeTruthy();
+
+    fireEvent.press(screen.getByRole('button', { name: '감정 살펴보기' }));
+    fireEvent.press(screen.getByRole('button', { name: '욕구 살펴보기' }));
+    fireEvent.press(screen.getByRole('button', { name: '내 선택으로 확인하기' }));
+    fireEvent.press(screen.getByRole('button', { name: '이 내용으로 저장' }));
+    await waitFor(() => expect(screen.getByText('기록을 이 기기에 저장했어요.')).toBeTruthy());
+    expect(save).toHaveBeenCalledTimes(2);
   });
 
   it('검색·주제 필터·직접 추가로 목록을 탐색한다', () => {
@@ -308,11 +435,15 @@ describe('TextEntryFlowScreen', () => {
     );
     advanceToNeeds();
     fireEvent.press(screen.getByRole('button', { name: 'AI와 더 살펴보기' }));
-    fireEvent.press(screen.getByRole('button', { name: '안내 확인하고 후보 보기' }));
+    const requestButton = screen.getByRole('button', { name: '안내 확인하고 후보 보기' });
+    const pressRequest = getPressHandler(requestButton);
+    act(() => {
+      pressRequest();
+      pressRequest();
+    });
 
     const loadingButton = screen.getByRole('button', { name: '후보 확인 중' });
     expect(loadingButton.props.accessibilityState?.disabled ?? loadingButton.props.disabled).toBe(true);
-    fireEvent.press(loadingButton);
     expect(suggest).toHaveBeenCalledTimes(1);
 
     await act(async () => {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -87,7 +87,16 @@ export function TextEntryFlowScreen({
   );
   const [message, setMessage] = useState<FlowMessage | null>(null);
   const [saving, setSaving] = useState(false);
+  const mounted = useRef(true);
+  const saveInFlight = useRef(false);
   const assistant = useAssistantExploration({ initialDraft, selfExploration });
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
 
   const toggleVocabularyItem = (item: VocabularyItem) => {
     setMessage(null);
@@ -211,6 +220,8 @@ export function TextEntryFlowScreen({
   };
 
   const save = async () => {
+    if (saveInFlight.current) return;
+
     if (!representativeEmotionId || !emotions.some(({ choice }) => choice.id === representativeEmotionId)) {
       setMessage({ kind: 'error', text: '달력에서 먼저 보고 싶은 대표 감정을 골라 주세요.' });
       return;
@@ -252,10 +263,25 @@ export function TextEntryFlowScreen({
       ...(initialDraft?.nextAction === undefined ? {} : { nextAction: initialDraft.nextAction }),
     };
 
+    saveInFlight.current = true;
     setSaving(true);
     setMessage(null);
-    const result = await repository.save(draft);
-    setSaving(false);
+    let result: Awaited<ReturnType<EntryRepository['save']>>;
+    try {
+      result = await repository.save(draft);
+    } catch {
+      if (mounted.current) {
+        setMessage({
+          kind: 'error',
+          text: '기록을 저장하지 못했어요. 작성한 내용은 그대로 남아 있어요.',
+        });
+      }
+      return;
+    } finally {
+      saveInFlight.current = false;
+      if (mounted.current) setSaving(false);
+    }
+    if (!mounted.current) return;
     if (!result.ok) {
       setMessage({
         kind: 'error',
