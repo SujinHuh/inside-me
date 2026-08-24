@@ -124,7 +124,7 @@
 - 상태: 사용자 선택 대기 — 비교안 준비됨
 - 영향: 구현 비용, 한국어 품질, 지연, 데이터 보존 정책
 - 질문: 이미 선호하거나 사용할 수 있는 AI·음성 API가 있는가? 월간 사용 비용과 외부 전송에 대해 허용 가능한 기준은 무엇인가?
-- 현재 비교안: `docs/references/ai-provider-comparison.md`에서 OpenAI, Gemini 유료 등급과 Anthropic의 공식 가격·학습·보존 기준을 비교했다. OpenAI Responses API의 `gpt-5.6-luna`를 비용 기준, `gpt-5.6-terra`를 품질 비교로 사용하는 안과 월 $3 모델 비용 상한을 DEC-048에서 제안한다.
+- 현재 비교안: `docs/references/ai-provider-comparison.md`에서 OpenAI, Gemini 유료 등급과 Anthropic의 공식 가격·학습·보존 기준을 비교했다. OpenAI Responses API의 `gpt-5.6-luna`를 비용 기준, `gpt-5.6-terra`를 품질 비교로 사용하는 안과 첫 개인 도그푸딩 프로젝트 전체의 월 $3 모델 비용 상한을 DEC-048에서 제안한다. 이는 1인당 정액 요금이 아니다.
 - 결정이 필요한 항목: 기본 안전 모니터링 로그의 최대 30일 보존 가능성 수용 여부, OpenAI 1차 평가 승인, 월 비용 상한, 계정·키·서버 준비 범위. 승인 전 실제 공급자 연결과 외부 전송은 금지한다.
 
 ### Q-014 — 이전 음성 인식이 불명확했던 표현
