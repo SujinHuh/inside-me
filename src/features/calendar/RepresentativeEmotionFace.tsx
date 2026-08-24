@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { borders, colors } from '@/src/ui/tokens';
+import { INITIAL_VOCABULARY } from '@/src/core/vocabulary';
 
 interface RepresentativeEmotionFaceProps {
   emotionId: string;
@@ -41,32 +42,15 @@ const presentations: Record<FaceVariant, FacePresentation> = {
 };
 
 const emotionVariants: Readonly<Record<string, FaceVariant>> = {
-  'emotion-joyful': 'joy',
-  'emotion-happy': 'joy',
-  'emotion-grateful': 'joy',
-  'emotion-excited': 'joy',
-  'emotion-comfortable': 'calm',
-  'emotion-peaceful': 'calm',
+  ...Object.fromEntries(
+    INITIAL_VOCABULARY
+      .filter((item) => item.kind === 'emotion')
+      .map((item) => [item.id, item.groups[0]]),
+  ),
+  // 초기 fixture와 이미 저장된 초안에서 사용한 ID를 계속 같은 표정으로 보여 준다.
   'emotion-calm': 'calm',
-  'emotion-confident': 'confidence',
-  'emotion-hopeful': 'confidence',
-  'emotion-worried': 'worry',
   'emotion-anxious': 'worry',
-  'emotion-afraid': 'fear',
-  'emotion-overwhelmed': 'fear',
-  'emotion-tense': 'tension',
-  'emotion-frustrated': 'tension',
-  'emotion-sad': 'sadness',
-  'emotion-hurt': 'sadness',
-  'emotion-disappointed': 'sadness',
-  'emotion-lonely': 'loneliness',
-  'emotion-tired': 'fatigue',
-  'emotion-powerless': 'fatigue',
-  'emotion-confused': 'confusion',
-  'emotion-embarrassed': 'confusion',
-  'emotion-angry': 'anger',
-  'emotion-wronged': 'anger',
-};
+} as Readonly<Record<string, FaceVariant>>;
 
 export function faceVariantForEmotion(emotionId: string): FaceVariant {
   return emotionVariants[emotionId] ?? 'confusion';

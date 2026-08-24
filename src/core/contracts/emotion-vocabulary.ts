@@ -1,6 +1,7 @@
 export type VocabularyKind = 'emotion' | 'need';
 export type VocabularySource = 'user-reference' | 'curated';
 export type ExplorationTag = 'comfortable' | 'uncomfortable' | 'energized' | 'calm';
+export type NeedConnection = 'fulfilled' | 'unfulfilled';
 
 export type EmotionGroupId =
   | 'joy'
@@ -37,7 +38,9 @@ interface VocabularyItemBase<TKind extends VocabularyKind, TGroup extends Vocabu
   explorationTags: readonly ExplorationTag[];
 }
 
-export type EmotionVocabularyItem = VocabularyItemBase<'emotion', EmotionGroupId>;
+export type EmotionVocabularyItem = VocabularyItemBase<'emotion', EmotionGroupId> & {
+  needConnection: NeedConnection;
+};
 export type NeedVocabularyItem = VocabularyItemBase<'need', NeedGroupId>;
 export type VocabularyItem = EmotionVocabularyItem | NeedVocabularyItem;
 
@@ -65,7 +68,7 @@ interface VocabularyQueryBase<TKind extends VocabularyKind, TGroup extends Vocab
 }
 
 export type VocabularyQuery =
-  | VocabularyQueryBase<'emotion', EmotionGroupId>
+  | (VocabularyQueryBase<'emotion', EmotionGroupId> & { needConnection?: NeedConnection })
   | VocabularyQueryBase<'need', NeedGroupId>;
 
 export interface EmotionNeedVocabulary {

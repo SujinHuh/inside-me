@@ -17,7 +17,7 @@
 | Android 실기기 통합 검증 | [실기기 체크리스트](device-validation-checklist.md) | [구현 계획](implementation-plan.md)의 `IMP-106` |
 | 의존성·Node·Expo·빌드 설정 변경 | [의존성 기준](dependencies.md) | [`package.json`](../package.json), [`package-lock.json`](../package-lock.json), [`.nvmrc`](../.nvmrc) |
 | 일반 UI 설계·구현·검수 | [Hallmark](references/hallmark.md), [Windows Classic UI](references/windows-classic-ui.md) | [제품 요구사항](requirements.md)의 UI 원칙 |
-| 감정·욕구 탐색 UI | [감정·욕구 이미지 참고](references/emotion-needs-vocabulary-images.md) | [감정 달력 화면 참고](references/emotion-calendar-app-screens.md), `DEC-037`, `DEC-046` |
+| 감정·욕구 탐색 UI | [감정·욕구 이미지 참고](references/emotion-needs-vocabulary-images.md), [전체 카탈로그 대조](references/emotion-needs-vocabulary-catalog.md) | [감정 달력 화면 참고](references/emotion-calendar-app-screens.md), `DEC-037`, `DEC-055` |
 | AI 공급자·개인정보·비용 결정 | [미결정 질문](open-questions.md)의 `Q-013` | [공급자 비교](references/ai-provider-comparison.md), [3모드 비용 추정](references/ai-mode-cost-estimate.md), `DEC-048`, `DEC-049` |
 | AI 응답 계약·합성 평가 | [구현 계획](implementation-plan.md)의 `IMP-204S` | [제품 요구사항](requirements.md)의 AI 원칙, `DEC-037`, `DEC-047`, `DEC-048`, [클린 코드 지침](clean-code-guidelines.md) |
 | PR 작성·검수 | [PR 작성 가이드](pull-request-guide.md) | [PR 템플릿](../.github/pull_request_template.md), [개발 워크플로](development-workflow.md)의 Git과 PR 운영 |
