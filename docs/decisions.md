@@ -1345,7 +1345,7 @@ PR 갱신이 너무 잦아 리뷰 단위가 흐려지거나, 기능마다 별도
 
 ## DEC-043 — PR 제목과 본문은 한국어로 작성
 
-- 상태: 확정
+- 상태: 대체됨 → DEC-051
 - 일자: 2026-08-20
 - 관련 로그: LOG-20260820-011
 - 관련 요구사항: 없음
@@ -1667,3 +1667,54 @@ Responses API는 foreground 단발 요청과 `store: false`만 사용하고 웹 
 ### 완화와 재검토 조건
 
 단계마다 ID와 재현 순서를 기록하고, 수정 뒤에는 영향 단계와 저장·재실행·삭제 핵심 흐름만 새 SHA에서 다시 수행한다. 누적 흐름이 너무 길거나 반복 실패가 생기면 체크리스트를 준비·핵심 저장·플랫폼 접근성의 짧은 묶음으로 나누되 동일 SHA 원칙은 유지한다. 저녁 실제 수행에서 흐름이 지나치게 길거나 오류 재현이 어려우면 묶음 크기를 재검토한다.
+
+---
+
+## DEC-051 — PR 제목은 영어 type과 한국어 설명을 조합
+
+- 상태: 확정
+- 일자: 2026-08-24
+- 대체한 결정: DEC-043
+- 관련 로그: LOG-20260824-017
+- 관련 요구사항: 없음
+- 관련 질문: 없음
+- 근거: [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/), [GitHub Draft pull requests](https://docs.github.com/en/pull-requests/reference/pull-requests#draft-pull-requests)
+
+### 맥락
+
+DEC-043은 PR 제목에서 영문 Conventional Commit 접두어를 제외하고 한국어만 사용하도록 정했다. 사용자는 변경 성격을 제목 앞에서 빠르게 구분할 수 있도록 영어 유형을 붙이고, 실제 설명은 한국어로 유지하는 방식을 조사한 뒤 적용해 달라고 요청했다.
+
+공식 Conventional Commits 규격은 커밋 메시지에 `<type>[optional scope]: <description>` 구조를 사용하고 `feat`, `fix` 외 추가 유형을 허용한다. GitHub의 Draft는 변경 유형이 아니라 병합할 수 없는 작업 중 PR 상태다. 이 저장소는 해당 구조를 PR 제목에도 적용하되 현재 규모에 맞게 유형과 문법을 제한한다.
+
+### 선택지
+
+1. DEC-043을 유지해 접두어 없는 한국어 제목만 사용
+2. `feat`, `fix`만 사용하고 나머지는 접두어 없이 작성
+3. 8개 영어 type 중 하나와 한국어 제목을 조합하고 Draft는 GitHub 상태로 분리
+4. scope와 breaking change까지 포함한 전체 Conventional Commits 문법을 PR 제목에 적용
+
+### 결정과 이유
+
+3번을 선택한다. PR 제목은 `type: 한국어 제목` 형식으로 쓰며 type은 `feat`, `fix`, `refactor`, `test`, `docs`, `build`, `ci`, `chore` 중 주된 목적 하나만 고른다. type은 소문자로 쓰고 scope는 사용하지 않는다. 본문은 기존처럼 한국어로 작성한다.
+
+`feature:` 대신 공식 규격에서 쓰는 `feat:`를 사용한다. 여러 변경 유형이 포함된 PR도 제목에는 리뷰 초점과 결과를 가장 잘 설명하는 type 하나만 둔다. 본문의 변경 유형 체크박스는 실제 diff에 따라 복수 선택할 수 있다.
+
+Draft는 type이나 제목 장식이 아니다. 작업 중 PR은 GitHub Draft 상태로 생성하고 `draft:` 또는 `[Draft]`를 제목에 넣지 않는다. 완료 기준을 충족하면 제목을 바꾸지 않고 Ready for review 상태로 전환한다.
+
+### 장점
+
+- PR 목록에서 기능·오류·테스트·문서 등의 주된 목적을 빠르게 구분할 수 있다.
+- 제목의 실제 변경 설명은 한국어로 유지해 읽기 쉽다.
+- 향후 squash merge나 changelog·라벨 자동화를 도입할 때 기계가 읽을 수 있는 기반이 생긴다.
+- Draft 상태를 제목과 분리해 상태 변경 뒤 낡은 `[Draft]` 문구가 남지 않는다.
+
+### 감수하는 비용과 위험
+
+- 하나의 PR에 여러 성격이 섞이면 대표 type 선택에 판단이 필요하다.
+- 이 규칙은 PR 제목에 적용한 저장소 규칙이며 Conventional Commits 규격 자체가 PR 제목을 강제하는 것은 아니다.
+- 자동 검사 도입 전에는 작성자와 검수자가 형식을 확인해야 한다.
+- `perf`, `revert`, scope와 breaking change 표기는 기본 8개 밖이므로 필요 시 규칙을 확장해야 한다.
+
+### 재검토 조건
+
+PR에서 대표 type을 고르기 어려운 사례가 반복되거나 릴리스 자동화가 `perf`, `revert`, scope 또는 breaking change를 요구하면 유형 집합과 문법을 재검토한다. 영어 설명 전체를 요구하는 외부 협업이 생겨도 본문 한국어 원칙과 함께 다시 결정한다.
