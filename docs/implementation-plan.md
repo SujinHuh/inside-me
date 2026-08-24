@@ -4,8 +4,8 @@
 - 최종 상태 확인일: 2026-08-24
 - 상태: IMP-106 Android 실기기 검증 대기, 원격 독립 작업 IMP-202R 완료
 - 개발 코드 상태: SQLite 하루 한 기록, 글 기록·사용자 우선 감정 탐색, 달력·상세 UI와 네이티브 저장 조합을 구현했다. 초기 감정 24개는 정확한 이름과 함께 11개 원본 코드 표정 계열로 표시한다.
-- 현재 개발 브랜치: `codex/imp-202-assistant-ui` (`main@b02cde5`에서 분기)
-- 원격 게시 상태: PR #9가 merge commit `b02cde5`로 병합됐고 IMP-202는 PR #10으로 게시했다. IMP-106은 사용자 Android 확인 대기이며, IMP-202R 저장 요청 안전성 보강을 `c6c85f0`으로 고정해 같은 PR을 갱신한다.
+- 현재 개발 기준: `main@ee83089`
+- 원격 게시 상태: PR #10이 merge commit `ee83089`로 병합됐다. IMP-202·IMP-202R은 `main`에 반영됐고, IMP-106은 사용자 Android 확인 대기다.
 - 첫 검증 기기: 개발자 본인의 Android 폰
 - 첫 실행 방식: Expo Go에서 개발 서버 QR 코드 스캔
 - 관련 결정: DEC-020, DEC-021, DEC-022, DEC-025, DEC-027, DEC-028, DEC-029, DEC-030, DEC-034, DEC-035, DEC-036, DEC-037, DEC-038, DEC-039, DEC-040, DEC-041, DEC-042, DEC-043, DEC-044(제안됨), DEC-045(제안됨), DEC-046, DEC-047
