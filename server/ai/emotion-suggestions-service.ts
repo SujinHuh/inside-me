@@ -4,6 +4,7 @@ import {
   parseEmotionSuggestionsRequest,
   parseEmotionSuggestionsResponse,
   type EmotionSuggestionProvider,
+  type EmotionSuggestionProviderError,
   type EmotionSuggestionProviderCatalog,
   type EmotionSuggestionUsage,
   type EmotionSuggestionsResponse,
@@ -17,7 +18,7 @@ export type EmotionSuggestionsServiceResult =
     }
   | {
       readonly ok: false;
-      readonly error: 'invalid-request' | 'invalid-response' | 'unavailable';
+      readonly error: 'invalid-request' | EmotionSuggestionProviderError;
     };
 
 export class EmotionSuggestionsService {
