@@ -7,9 +7,16 @@ export interface ExternalEmotionExplorerPayload {
   };
 }
 
-export type ExternalEmotionExplorerTransportResult =
+export type ExternalEmotionExplorerHttpErrorCode =
+  | 'cancelled'
+  | 'unavailable'
+  | 'invalid-response';
+
+export type ExternalEmotionExplorerHttpResponse =
   | { ok: true; value: unknown }
-  | { ok: false; error: { code: 'cancelled' | 'unavailable' } };
+  | { ok: false; error: { code: ExternalEmotionExplorerHttpErrorCode } };
+
+export type ExternalEmotionExplorerTransportResult = ExternalEmotionExplorerHttpResponse;
 
 /**
  * 실제 공급자·HTTP 구현이 따라야 하는 최소 포트다.
