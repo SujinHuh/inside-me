@@ -220,7 +220,10 @@ export class ValidatedExternalEmotionExplorer implements EmotionExplorer {
       if (!prepared) return invalidResponse();
 
       const result = await this.transport.requestSuggestions(prepared.payload);
-      if (!result.ok) return result.error.code === 'cancelled' ? cancelled() : unavailable();
+      if (!result.ok) {
+        if (result.error.code === 'cancelled') return cancelled();
+        return result.error.code === 'invalid-response' ? invalidResponse() : unavailable();
+      }
 
       const parsed = parseExternalEmotionExplorerResponse(result.value, this.vocabulary, {
         emotions: prepared.selectedEmotionIds,

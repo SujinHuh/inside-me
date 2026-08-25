@@ -1,5 +1,10 @@
 import { SelfExplorationService } from '../application/exploration/self-exploration-service';
-import type { DateKeyPolicy, EntryRepository, EntrySerializer } from '../core/contracts';
+import type {
+  DateKeyPolicy,
+  EmotionExplorer,
+  EntryRepository,
+  EntrySerializer,
+} from '../core/contracts';
 import type { EmotionNeedVocabulary } from '../core/contracts/emotion-vocabulary';
 import { JsonEntrySerializer } from '../core/entries/json-entry-serializer';
 import { LocalDateKeyPolicy } from '../core/dates/local-date-key-policy';
@@ -15,6 +20,7 @@ interface AppServiceDependencies {
   entryRepository?: EntryRepository;
   exportFilePort?: ExportFilePort;
   persistentEntriesAvailable?: boolean;
+  createEmotionExplorer?: (vocabulary: EmotionNeedVocabulary) => EmotionExplorer;
 }
 
 export interface AppServices {
@@ -29,7 +35,8 @@ export interface AppServices {
 
 export function createAppServices(dependencies: AppServiceDependencies = {}): AppServices {
   const vocabulary = new InMemoryEmotionNeedVocabulary(INITIAL_VOCABULARY);
-  const explorer = new DeterministicEmotionExplorer(vocabulary);
+  const explorer = dependencies.createEmotionExplorer?.(vocabulary)
+    ?? new DeterministicEmotionExplorer(vocabulary);
   const dateKeyPolicy = dependencies.dateKeyPolicy ?? new LocalDateKeyPolicy();
 
   return {

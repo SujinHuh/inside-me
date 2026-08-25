@@ -133,6 +133,7 @@ describe('ValidatedExternalEmotionExplorer', () => {
   it.each([
     ['cancelled', 'cancelled'],
     ['unavailable', 'unavailable'],
+    ['invalid-response', 'invalid-response'],
   ] as const)('transport의 %s를 안전한 %s 오류로 변환한다', async (transportCode, resultCode) => {
     const { explorer } = createHarness({ ok: false, error: { code: transportCode } });
 
