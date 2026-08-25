@@ -164,7 +164,7 @@ export class OpenAiResponsesEmotionProvider implements EmotionSuggestionProvider
       }
     } catch {
       // 공급자 오류와 사용자 원문은 서버 경계 밖으로 노출하지 않는다.
-      return { ok: false, error: 'unavailable' };
+      return { ok: false, error: signal?.aborted ? 'cancelled' : 'unavailable' };
     }
   }
 }

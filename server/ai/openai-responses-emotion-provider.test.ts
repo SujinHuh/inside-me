@@ -136,4 +136,22 @@ describe('OpenAiResponsesEmotionProvider', () => {
     expect(result).toEqual({ ok: false, error: 'unavailable' });
     expect(JSON.stringify(result)).not.toContain(request.story);
   });
+
+  it('사용자가 중단한 요청은 일반 공급자 장애와 구분한다', async () => {
+    const controller = new AbortController();
+    const provider = new OpenAiResponsesEmotionProvider(
+      {
+        createResponse: async () => {
+          controller.abort();
+          throw new Error('합성 취소');
+        },
+      },
+      'model-to-decide',
+    );
+
+    await expect(provider.suggest(request, catalog, controller.signal)).resolves.toEqual({
+      ok: false,
+      error: 'cancelled',
+    });
+  });
 });

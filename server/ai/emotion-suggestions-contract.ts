@@ -49,13 +49,22 @@ export interface EmotionSuggestionUsage {
   readonly totalTokens: number;
 }
 
+export type EmotionSuggestionProviderError =
+  | 'unavailable'
+  | 'invalid-response'
+  | 'cancelled'
+  | 'duplicate-request'
+  | 'request-in-flight'
+  | 'insufficient-budget'
+  | 'cost-accounting-failed';
+
 export type EmotionSuggestionProviderResult =
   | {
       readonly ok: true;
       readonly value: unknown;
       readonly usage: EmotionSuggestionUsage | null;
     }
-  | { readonly ok: false; readonly error: 'unavailable' | 'invalid-response' };
+  | { readonly ok: false; readonly error: EmotionSuggestionProviderError };
 
 export interface EmotionSuggestionProvider {
   suggest(
