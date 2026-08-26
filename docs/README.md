@@ -1,7 +1,7 @@
 # Inside Me 문서 안내
 
 - 상태: 문서 탐색의 단일 원본
-- 최종 확인일: 2026-08-24
+- 최종 확인일: 2026-08-26
 
 ## 목적
 
@@ -13,11 +13,13 @@
 |---|---|---|
 | 제품 아이디어·요구사항 변경 | [제품 요구사항](requirements.md) | 관련 [결정 로그](decisions.md), [미결정 질문](open-questions.md), 최근 [제품 로그](product-log.md) |
 | 다음 구현 선택·완료 상태 확인 | [구현 계획](implementation-plan.md) | [개발 워크플로](development-workflow.md), [클린 코드 지침](clean-code-guidelines.md) |
+| POC·프로토타입·MVP 단계와 승격 기준 확인 | [제품 개발 단계](product-development-stages.md) | [구현 계획](implementation-plan.md), [UI QA 가이드](ui-qa-guide.md), [실기기 체크리스트](device-validation-checklist.md) |
 | 외부에서 폰으로 원격 개발 | [구현 계획](implementation-plan.md)의 현재 실행 환경과 포인터 | [개발 워크플로](development-workflow.md)의 외부·폰 원격 모드 |
 | Android 실기기 통합 검증 | [실기기 체크리스트](device-validation-checklist.md) | [구현 계획](implementation-plan.md)의 `IMP-106` |
 | 의존성·Node·Expo·빌드 설정 변경 | [의존성 기준](dependencies.md) | [`package.json`](../package.json), [`package-lock.json`](../package-lock.json), [`.nvmrc`](../.nvmrc) |
-| 일반 UI 설계·구현·검수 | [Hallmark](references/hallmark.md), [Windows Classic UI](references/windows-classic-ui.md) | [제품 요구사항](requirements.md)의 UI 원칙 |
-| 감정·욕구 탐색 UI | [감정·욕구 이미지 참고](references/emotion-needs-vocabulary-images.md), [전체 카탈로그 대조](references/emotion-needs-vocabulary-catalog.md) | [감정 달력 화면 참고](references/emotion-calendar-app-screens.md), `DEC-037`, `DEC-055` |
+| 일반 UI 설계·구현·검수 | [Hallmark](references/hallmark.md), [Windows Classic UI](references/windows-classic-ui.md) | [제품 요구사항](requirements.md)의 UI 원칙, [UI QA 근거](references/ui-qa-standards.md) |
+| 감정·욕구 탐색 UI | [감정·욕구 이미지 참고](references/emotion-needs-vocabulary-images.md), [전체 카탈로그 대조](references/emotion-needs-vocabulary-catalog.md) | [버블 감정 지도 참고](references/bubble-emotion-map.md), [UI 상용화 지식재산 위험](references/ui-ip-risk-review.md), [감정 달력 화면 참고](references/emotion-calendar-app-screens.md), `REQ-029`, `DEC-037`, `DEC-055`, `DEC-060`, `DEC-061`, `DEC-062`, `DEC-063`, `Q-034`, `Q-035` |
+| UI 반응형·상호작용 브라우저 보조 QA | [UI 브라우저 보조 QA 가이드](ui-qa-guide.md) | [UI QA 근거](references/ui-qa-standards.md), [실기기 체크리스트](device-validation-checklist.md), [개발 워크플로](development-workflow.md) |
 | AI 공급자·개인정보·비용 결정 | [미결정 질문](open-questions.md)의 `Q-013` | [공급자 비교](references/ai-provider-comparison.md), [3모드 비용 추정](references/ai-mode-cost-estimate.md), `DEC-048`, `DEC-049` |
 | AI 응답 계약·합성 평가 | [구현 계획](implementation-plan.md)의 `IMP-204S` | [제품 요구사항](requirements.md)의 AI 원칙, `DEC-037`, `DEC-047`, `DEC-048`, [클린 코드 지침](clean-code-guidelines.md) |
 | PR 작성·검수 | [PR 작성 가이드](pull-request-guide.md) | [PR 템플릿](../.github/pull_request_template.md), [개발 워크플로](development-workflow.md)의 Git과 PR 운영 |
@@ -28,6 +30,7 @@
 | 문서 | 원본으로 관리하는 내용 |
 |---|---|
 | `docs/README.md` | 작업 유형별 필독 문서와 전체 문서 탐색 경로 |
+| `docs/product-development-stages.md` | POC→프로토타입→MVP 단계, 현재 기능 분류와 단계별 QA 승격 기준 |
 | `README.md` | 저장소 첫 화면의 제품 소개, 현재 상태와 실행 방법 요약 |
 | `docs/requirements.md` | 현재 유효한 제품 요구사항과 MVP 범위 |
 | `docs/decisions.md` | 선택지, 결정 상태, 트레이드오프와 재검토 조건 |
@@ -39,6 +42,7 @@
 | `docs/dependencies.md` | Node·npm·Expo와 직접 의존성의 선택 근거·버전·감사 결과 |
 | `docs/device-validation-checklist.md` | 최신 `main` 기준 Android 실기기 검증 순서와 실행 결과 |
 | `docs/pull-request-guide.md` | PR 제목 type, 한국어 본문과 검증·영향 작성 기준 |
+| `docs/ui-qa-guide.md` | 모바일 화면 크기별 브라우저 보조 QA와 사람·실기기 검증 경계 |
 | `docs/references/` | 사용자 제공 자료, 외부 근거와 프로젝트 적용 해석 |
 | `../AGENTS.md` | 모든 실행에서 빠지면 안 되는 저장소 강제 규칙과 안전 경계 |
 

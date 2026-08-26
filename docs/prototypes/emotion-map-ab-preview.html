@@ -1,0 +1,1318 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Inside Me 감정 지도 A/B/C 목업</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #25231f;
+      --muted: #6e6a61;
+      --paper: #f5f0e6;
+      --panel: #fffaf0;
+      --line: #615d55;
+      --fulfilled: #f6c85f;
+      --fulfilled-soft: #fff0b8;
+      --unfulfilled: #f18d7e;
+      --unfulfilled-soft: #ffd2ca;
+      --needs: #76d6b0;
+      --needs-soft: #c9f1df;
+      --selected: #272622;
+      font-family: Pretendard, "Noto Sans KR", system-ui, -apple-system, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: #eee9df; color: var(--ink); }
+    button, input { font: inherit; }
+    button { color: inherit; }
+
+    body {
+      display: grid;
+      place-items: start center;
+      padding: 18px 10px 40px;
+    }
+
+    .prototype-shell {
+      width: min(100%, 430px);
+      min-height: 780px;
+      overflow: hidden;
+      border: 1px solid #aaa397;
+      border-radius: 32px;
+      background: var(--paper);
+      box-shadow: 0 14px 34px rgb(75 68 57 / 11%);
+    }
+
+    header {
+      padding: 20px 18px 13px;
+      border-bottom: 1px solid #aaa397;
+      background: var(--panel);
+    }
+
+    .eyebrow {
+      margin: 0 0 5px;
+      color: #276c55;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+    }
+
+    h1 { margin: 0; font-family: Georgia, "Noto Serif KR", serif; font-size: 27px; line-height: 1.14; }
+    .intro { margin: 8px 0 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+
+    .variant-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      padding: 10px 12px;
+      border-bottom: 1px solid #d6cec1;
+      background: #f8f3ea;
+    }
+
+    .variant-tab, .tool-button, .portal, .bubble, .category-back, .clear-button {
+      min-height: 46px;
+      border: 1px solid var(--line);
+      cursor: pointer;
+    }
+
+    .variant-tab {
+      padding: 9px 8px;
+      border-color: #d8d0c4;
+      background: rgb(255 253 247 / 70%);
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: 0 2px 7px rgb(84 75 61 / 5%);
+    }
+
+    .variant-tab[aria-selected="true"] {
+      border-color: #91aa9b;
+      background: #deeee5;
+      color: #203f34;
+      box-shadow: 0 3px 9px rgb(56 92 75 / 10%);
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      padding: 10px 12px;
+      background: var(--panel);
+      border-bottom: 1px solid #b9b2a6;
+    }
+
+    .catalog-load-status {
+      grid-column: 1 / -1;
+      margin: -2px 2px 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .catalog-load-status.error { color: #9b2d24; font-weight: 800; }
+
+    .search {
+      min-height: 46px;
+      width: 100%;
+      border: 1px solid #aaa397;
+      border-radius: 15px;
+      padding: 0 12px;
+      background: white;
+    }
+
+    .tool-button, .clear-button, .category-back {
+      padding: 8px 12px;
+      border-color: #aaa397;
+      border-radius: 15px;
+      background: #f9f5ec;
+      font-weight: 750;
+    }
+
+    button:disabled, input:disabled { cursor: not-allowed; opacity: .52; }
+
+    .stage { position: relative; min-height: 575px; overflow: hidden; background: #eee6d9; }
+    .variant { display: none; min-height: 575px; }
+    .variant.active { display: block; }
+
+    .universe-viewport {
+      position: relative;
+      height: 575px;
+      overflow: hidden;
+      touch-action: none;
+      cursor: grab;
+      background:
+        radial-gradient(circle at 18% 20%, rgb(246 200 95 / 38%), transparent 34%),
+        radial-gradient(circle at 88% 28%, rgb(241 141 126 / 34%), transparent 34%),
+        radial-gradient(circle at 46% 88%, rgb(118 214 176 / 38%), transparent 34%),
+        #f1eadf;
+    }
+
+    .universe-viewport.dragging { cursor: grabbing; }
+    .universe-map { position: absolute; width: 920px; height: 980px; transform: translate(-275px, -180px); }
+
+    .zone-title {
+      position: absolute;
+      z-index: 2;
+      min-width: 150px;
+      padding: 8px 12px;
+      border: 1px solid #6b6257;
+      border-radius: 999px;
+      background: rgb(255 250 240 / 94%);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 850;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .zone-title.fulfilled { left: 162px; top: 120px; }
+    .zone-title.unfulfilled { left: 610px; top: 180px; }
+    .zone-title.needs { left: 380px; top: 650px; }
+
+    .bubble {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      width: var(--size);
+      height: var(--size);
+      padding: 8px;
+      border: 2px solid #5f584e;
+      border-radius: 50%;
+      background: var(--tone);
+      font-size: clamp(12px, 3.5vw, 15px);
+      font-weight: 780;
+      line-height: 1.14;
+      text-align: center;
+      box-shadow: inset 0 -5px 0 rgb(0 0 0 / 8%);
+      transition: transform .14s ease, box-shadow .14s ease;
+      user-select: none;
+    }
+
+    .bubble:focus-visible, .portal:focus-visible, .variant-tab:focus-visible, .tool-button:focus-visible,
+    .clear-button:focus-visible, .category-back:focus-visible, .search:focus-visible {
+      outline: 4px solid #fffaf0;
+      outline-offset: 2px;
+      box-shadow: 0 0 0 7px #296eeb;
+    }
+
+    .bubble[aria-pressed="true"] {
+      transform: scale(.92);
+      border: 5px solid #fffaf0;
+      color: white;
+      background: var(--selected);
+      box-shadow: 0 0 0 4px var(--tone);
+    }
+
+    .universe-hint {
+      position: absolute;
+      z-index: 4;
+      left: 50%;
+      bottom: 14px;
+      transform: translateX(-50%);
+      width: max-content;
+      max-width: calc(100% - 24px);
+      padding: 8px 12px;
+      border: 1px solid #746b60;
+      border-radius: 999px;
+      color: var(--ink);
+      background: rgb(255 250 240 / 90%);
+      font-size: 12px;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .sphere-controls {
+      position: absolute;
+      z-index: 7;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 2px 2px 8px;
+      scrollbar-width: none;
+    }
+
+    .sphere-controls::-webkit-scrollbar { display: none; }
+
+    .sphere-filter {
+      flex: 0 0 auto;
+      min-height: 42px;
+      padding: 7px 10px;
+      border: 1px solid #665e54;
+      border-radius: 999px;
+      background: rgb(255 250 240 / 94%);
+      font-size: 12px;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .sphere-filter[aria-pressed="true"] { background: var(--ink); color: white; }
+
+    .sphere-orb {
+      position: absolute;
+      left: 50%;
+      top: 51%;
+      width: min(90vw, 366px);
+      aspect-ratio: 1;
+      transform: translate(-50%, -50%);
+      border: 2px solid #554e45;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 35% 28%, rgb(255 255 255 / 96%), transparent 21%),
+        radial-gradient(circle at 44% 38%, #fffdf8 0 28%, #f7efe2 66%, #ded2c1 100%);
+      box-shadow:
+        inset -22px -28px 42px rgb(96 84 68 / 12%),
+        inset 20px 18px 32px rgb(255 255 255 / 78%),
+        0 16px 30px rgb(83 73 58 / 15%);
+      touch-action: none;
+      cursor: grab;
+    }
+
+    .sphere-orb.dragging { cursor: grabbing; }
+
+    .sphere-word {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      display: grid;
+      place-items: center;
+      width: 76px;
+      min-height: 46px;
+      padding: 7px 9px;
+      border: 1px solid #514b43;
+      border-radius: 999px;
+      background: var(--tone);
+      font-size: 13px;
+      font-weight: 820;
+      line-height: 1.12;
+      text-align: center;
+      box-shadow: 0 3px 8px rgb(53 48 42 / 13%);
+      cursor: pointer;
+      will-change: transform, opacity;
+      transition: opacity .12s ease, box-shadow .12s ease;
+    }
+
+    .sphere-word[aria-pressed="true"] {
+      border: 3px solid white;
+      color: white;
+      background: var(--selected);
+      box-shadow: 0 0 0 3px var(--tone);
+    }
+
+    .sphere-word:focus-visible {
+      outline: 4px solid white;
+      outline-offset: 2px;
+      box-shadow: 0 0 0 7px #296eeb;
+    }
+
+    .catalog-status {
+      position: absolute;
+      z-index: 7;
+      left: 12px;
+      top: 58px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: rgb(255 250 240 / 88%);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .portal-screen {
+      min-height: 575px;
+      padding: 18px 14px 94px;
+      background: linear-gradient(#fffaf0, #eee6d8);
+    }
+
+    .portal-intro { margin: 0 4px 13px; font-size: 14px; color: var(--muted); line-height: 1.45; }
+    .portals { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: center; }
+
+    .portal {
+      position: relative;
+      display: grid;
+      place-items: center;
+      aspect-ratio: 1;
+      min-height: 140px;
+      padding: 18px;
+      border-radius: 50%;
+      font-weight: 900;
+      text-align: center;
+      box-shadow: inset 0 -10px 0 rgb(0 0 0 / 9%), 0 8px 18px rgb(60 53 40 / 13%);
+    }
+
+    .portal small { display: block; margin-top: 5px; font-size: 12px; font-weight: 650; }
+    .portal.fulfilled { background: var(--fulfilled); }
+    .portal.unfulfilled { background: var(--unfulfilled); }
+    .portal.needs { grid-column: 1 / -1; width: 72%; justify-self: center; background: var(--needs); }
+
+    .category-screen { display: none; min-height: 575px; padding: 12px 12px 96px; background: #eee6d9; }
+    .category-screen.active { display: block; }
+    .category-top { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; color: var(--ink); }
+    .category-title { margin: 0; font-size: 20px; }
+    .category-bubbles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .category-bubbles .bubble { position: static; width: 100%; height: auto; min-height: 94px; --size: 94px; }
+
+    .room-screen {
+      min-height: 575px;
+      background:
+        radial-gradient(ellipse at 15% 12%, rgb(255 218 139 / 30%), transparent 34%),
+        radial-gradient(ellipse at 91% 35%, rgb(242 160 150 / 23%), transparent 34%),
+        radial-gradient(ellipse at 40% 96%, rgb(151 216 184 / 28%), transparent 38%),
+        #fbf5e9;
+    }
+
+    .room-lobby {
+      min-height: 575px;
+      padding: 24px 16px 28px;
+    }
+
+    .room-lobby[hidden], .room-explorer[hidden] { display: none; }
+
+    .room-kicker {
+      margin: 0 0 6px;
+      color: #276c55;
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: .06em;
+    }
+
+    .room-heading {
+      margin: 0;
+      font-family: Georgia, "Noto Serif KR", serif;
+      font-size: 25px;
+      line-height: 1.22;
+    }
+
+    .room-copy {
+      margin: 9px 0 20px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .room-doors {
+      display: grid;
+      gap: 12px;
+    }
+
+    .room-door {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px 14px;
+      align-items: center;
+      width: 100%;
+      min-height: 112px;
+      padding: 19px 22px;
+      border: 1px solid rgb(70 65 56 / 30%);
+      color: var(--ink);
+      text-align: left;
+      cursor: pointer;
+      box-shadow: inset 0 -5px 0 rgb(64 55 39 / 3%), 0 7px 18px rgb(68 58 42 / 7%);
+    }
+
+    .room-door:nth-child(1) { border-radius: 46% 54% 43% 57% / 36% 43% 57% 64%; }
+    .room-door:nth-child(2) { border-radius: 54% 46% 58% 42% / 47% 62% 38% 53%; }
+    .room-door:nth-child(3) { border-radius: 44% 56% 51% 49% / 58% 42% 58% 42%; }
+    .room-door.fulfilled { background: #f8dda0; }
+    .room-door.unfulfilled { background: #f2c0b7; }
+    .room-door.needs { background: #bce4d1; }
+
+    .room-door strong { display: block; font-size: 19px; }
+    .room-door small { display: block; margin-top: 5px; color: #5e594f; font-size: 12px; line-height: 1.4; }
+    .room-door-count { font-family: Georgia, serif; font-size: 30px; font-weight: 700; }
+
+    .need-preview {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 3px;
+    }
+
+    .need-preview span {
+      padding: 4px 7px;
+      border-radius: 999px;
+      background: rgb(255 255 255 / 42%);
+      color: #36574a;
+      font-size: 11px;
+      font-weight: 750;
+      line-height: 1.2;
+    }
+
+    .room-door:focus-visible, .room-word:focus-visible, .need-door:focus-visible, .room-back:focus-visible {
+      outline: 4px solid white;
+      outline-offset: 2px;
+      box-shadow: 0 0 0 7px #296eeb;
+    }
+
+    .room-explorer { min-height: 575px; }
+
+    .room-top {
+      position: sticky;
+      z-index: 7;
+      top: 0;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border-bottom: 1px solid #aaa397;
+      background: rgb(255 250 240 / 94%);
+      backdrop-filter: blur(9px);
+    }
+
+    .room-back {
+      min-height: 46px;
+      padding: 8px 12px;
+      border: 1px solid #aaa397;
+      border-radius: 14px;
+      background: #fffdf7;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .room-title { margin: 0; font-size: 19px; }
+    .room-subtitle { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
+
+    .room-field {
+      height: 505px;
+      overflow-y: auto;
+      padding: 16px 12px 36px;
+      scroll-behavior: smooth;
+    }
+
+    .emotion-cluster-copy { margin: 0 4px 11px; color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+    .emotion-cluster-map {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 18px;
+      padding: 12px;
+      border-radius: 27px 21px 30px 19px / 22px 30px 19px 27px;
+      background: rgb(255 250 240 / 68%);
+      box-shadow: inset 0 0 0 1px rgb(89 79 64 / 10%);
+    }
+
+    .emotion-cluster-button {
+      min-height: 44px;
+      padding: 9px 12px;
+      border: 1px solid rgb(78 72 63 / 25%);
+      border-radius: 999px;
+      background: rgb(255 255 255 / 62%);
+      color: #4f4a42;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .emotion-cluster-button[aria-pressed="true"] {
+      border-color: #728c7e;
+      background: #e0eee6;
+      color: #234539;
+      box-shadow: 0 3px 9px rgb(55 91 74 / 10%);
+    }
+
+    .emotion-cluster-button:focus-visible {
+      outline: 4px solid #fffaf0;
+      outline-offset: 2px;
+      box-shadow: 0 0 0 7px #296eeb;
+    }
+
+    .word-cluster {
+      padding: 15px 12px 18px;
+      border-radius: 31px 23px 35px 20px / 24px 34px 21px 31px;
+      background: rgb(255 250 240 / 54%);
+      box-shadow: inset 0 0 0 1px rgb(89 79 64 / 8%);
+    }
+
+    .word-cluster + .word-cluster { margin-top: 18px; }
+    .cluster-title { margin: 0 0 11px 5px; color: #5b554b; font-size: 14px; font-weight: 850; }
+    .cluster-words { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 9px 7px; align-items: center; }
+
+    .room-word {
+      display: grid;
+      place-items: center;
+      grid-column: span var(--word-span, 4);
+      min-height: 50px;
+      padding: 10px 14px;
+      border: 1px solid rgb(78 72 63 / 31%);
+      color: #2d302c;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.15;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: inset 0 -3px 0 rgb(75 66 50 / 3%), 0 3px 8px rgb(75 66 50 / 6%);
+      transition: transform .14s ease, box-shadow .14s ease;
+    }
+
+    .room-word.shape-0 { border-radius: 48% 52% 43% 57% / 55% 42% 58% 45%; }
+    .room-word.shape-1 { border-radius: 56% 44% 52% 48% / 44% 59% 41% 56%; }
+    .room-word.shape-2 { border-radius: 43% 57% 59% 41% / 52% 44% 56% 48%; }
+    .room-word.shape-3 { border-radius: 999px; }
+    .room-word.fulfilled { background: #f9dfa4; }
+    .room-word.unfulfilled { background: #f3c2ba; }
+    .room-word.needs { background: #bfe5d3; }
+    .room-word[aria-pressed="true"] { color: white; background: #2f4438; box-shadow: 0 0 0 4px #fffaf0, 0 0 0 6px #967f5d; transform: scale(.96); }
+
+    .need-lobby-copy { margin: 0 4px 14px; color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .need-doors { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+    .need-door {
+      display: grid;
+      place-items: center;
+      min-height: 102px;
+      padding: 13px 10px;
+      border: 1px solid rgb(73 83 77 / 31%);
+      background: #bfe5d3;
+      font-size: 13px;
+      font-weight: 850;
+      line-height: 1.25;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: inset 0 -4px 0 rgb(46 86 66 / 3%), 0 4px 10px rgb(46 86 66 / 6%);
+    }
+
+    .need-door:nth-child(4n + 1) { border-radius: 50% 50% 43% 57% / 56% 45% 55% 44%; }
+    .need-door:nth-child(4n + 2) { border-radius: 44% 56% 55% 45% / 47% 60% 40% 53%; }
+    .need-door:nth-child(4n + 3) { border-radius: 58% 42% 48% 52% / 41% 51% 49% 59%; }
+    .need-door:nth-child(4n + 4) { border-radius: 999px; }
+    .need-door small { display: block; margin-top: 5px; color: #496056; font-size: 11px; font-weight: 700; }
+
+    .room-empty { margin: 24px 8px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+
+    .selection-bar {
+      position: sticky;
+      z-index: 8;
+      bottom: 0;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 74px;
+      padding: 10px 12px max(10px, env(safe-area-inset-bottom));
+      border-top: 1px solid #aaa397;
+      background: rgb(255 250 240 / 96%);
+      backdrop-filter: blur(8px);
+    }
+
+    .selection-copy { min-width: 0; }
+    .selection-count { display: block; font-weight: 900; }
+    .selection-names { display: block; overflow: hidden; color: var(--muted); font-size: 12px; white-space: nowrap; text-overflow: ellipsis; }
+
+    .list-panel {
+      position: fixed;
+      z-index: 20;
+      inset: 0;
+      display: none;
+      place-items: end center;
+      background: rgb(20 19 16 / 52%);
+    }
+
+    .list-panel.open { display: grid; }
+    .list-sheet { width: min(100%, 430px); max-height: 76vh; overflow: auto; padding: 18px; border-radius: 24px 24px 0 0; background: var(--panel); }
+    .list-sheet h2 { margin: 0 0 8px; }
+    .list-note { margin: 0 0 12px; color: var(--muted); font-size: 13px; }
+    .list-items { display: flex; flex-wrap: wrap; gap: 8px; }
+    .list-items button { min-height: 44px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; background: white; }
+    .list-items button[aria-pressed="true"] { background: var(--ink); color: white; }
+    .sheet-actions { position: sticky; bottom: -18px; margin: 16px -18px -18px; padding: 12px 18px; background: var(--panel); }
+    .sheet-actions .tool-button { width: 100%; }
+
+    .prototype-note { padding: 12px 16px; border-top: 1px solid #aaa397; background: #ebe5da; color: var(--muted); font-size: 12px; line-height: 1.45; }
+
+    @media (max-width: 350px) {
+      body { padding: 0; }
+      .prototype-shell { border: 0; border-radius: 0; min-height: 100vh; }
+      h1 { font-size: 24px; }
+      .portal { min-height: 126px; padding: 12px; }
+      .category-bubbles { grid-template-columns: repeat(2, 1fr); }
+      .universe-map { transform: translate(-300px, -180px); }
+      .variant-tab { padding-inline: 4px; font-size: 11px; }
+    }
+
+    @media (max-width: 430px) {
+      header { display: none; }
+      body { padding-top: 0; }
+      .variant-tabs { padding-block: 8px; }
+      .room-lobby { padding: 16px 14px 22px; }
+      .room-heading { font-size: 22px; }
+      .room-copy { margin: 7px 0 12px; font-size: 13px; }
+      .room-doors { gap: 8px; }
+      .room-door { min-height: 88px; padding: 14px 18px; }
+      .room-door.needs { min-height: 136px; }
+      .room-door strong { font-size: 18px; }
+      .room-door-count { font-size: 27px; }
+      .need-preview { gap: 4px; }
+      .need-preview span { padding: 3px 6px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="prototype-shell">
+    <header>
+      <p class="eyebrow">INSIDE ME · UI 비교 목업</p>
+      <h1>오늘의 마음을<br />어디에서 발견했나요?</h1>
+      <p class="intro">목록을 훑는 대신 마음 단어 공간을 천천히 둘러보며 가까운 표현을 찾아보세요.</p>
+    </header>
+
+    <div class="variant-tabs" role="tablist" aria-label="감정 지도 후보">
+      <button class="variant-tab" id="tab-a" data-variant="a" role="tab" aria-selected="false" aria-controls="variant-a">A안<br />회전 감정 구</button>
+      <button class="variant-tab" id="tab-b" data-variant="b" role="tab" aria-selected="false" aria-controls="variant-b">B안<br />세 개의 큰 공</button>
+      <button class="variant-tab" id="tab-c" data-variant="c" role="tab" aria-selected="true" aria-controls="variant-c">C안<br />세 개의 마음 방</button>
+    </div>
+
+    <div class="toolbar">
+      <input class="search" id="search" type="search" aria-label="감정·욕구 검색" placeholder="감정·욕구 검색" disabled />
+      <button class="tool-button" id="open-list" type="button" disabled>목록</button>
+      <p class="catalog-load-status" id="catalog-load-status" role="status" aria-live="polite">전체 감정·욕구 271개를 불러오는 중입니다.</p>
+    </div>
+
+    <section class="stage">
+      <div class="variant" id="variant-a" role="tabpanel" aria-labelledby="tab-a">
+        <div class="universe-viewport" id="universe" aria-label="손가락으로 굴려서 둘러보는 구형 감정 지도">
+          <div class="sphere-controls" role="group" aria-label="구에 표시할 단어 종류">
+            <button class="sphere-filter" data-sphere-filter="emotions" aria-pressed="true">감정 전체 · 161</button>
+            <button class="sphere-filter" data-sphere-filter="fulfilled" aria-pressed="false">충족 · 70</button>
+            <button class="sphere-filter" data-sphere-filter="unfulfilled" aria-pressed="false">미충족 · 91</button>
+            <button class="sphere-filter" data-sphere-filter="needs" aria-pressed="false">욕구 · 110</button>
+          </div>
+          <div class="catalog-status" id="catalog-status">전체 카탈로그 불러오는 중</div>
+          <div class="sphere-orb" id="sphere-orb" aria-label="드래그하면 단어가 앞뒤로 회전합니다"></div>
+          <div class="universe-hint">구를 좌우·상하로 드래그 · 앞쪽 단어를 눌러 선택</div>
+        </div>
+      </div>
+
+      <div class="variant" id="variant-b" role="tabpanel" aria-labelledby="tab-b">
+        <div class="portal-screen" id="portal-screen">
+          <p class="portal-intro">세 개의 입구 중 하나를 먼저 골라요. 다른 공으로 이동해도 선택은 유지돼요.</p>
+          <div class="portals">
+            <button class="portal fulfilled" data-open-category="fulfilled">충족 감정<small>편안함·기쁨·활력</small></button>
+            <button class="portal unfulfilled" data-open-category="unfulfilled">미충족 감정<small>불안·서운함·피로</small></button>
+            <button class="portal needs" data-open-category="needs">욕구<small>8개 영역에서 찾아보기</small></button>
+          </div>
+        </div>
+        <div class="category-screen" id="category-screen">
+          <div class="category-top">
+            <button class="category-back" id="category-back" type="button">← 세 공</button>
+            <h2 class="category-title" id="category-title">감정</h2>
+          </div>
+          <div class="category-bubbles" id="category-bubbles"></div>
+        </div>
+      </div>
+
+      <div class="variant active" id="variant-c" role="tabpanel" aria-labelledby="tab-c">
+        <div class="room-screen">
+          <div class="room-lobby" id="room-lobby">
+            <p class="room-kicker">답을 맞히는 화면이 아니에요</p>
+            <h2 class="room-heading">지금 눈이 머무는<br />마음부터 들어가 보세요.</h2>
+            <p class="room-copy">하나의 상황에 충족과 미충족이 함께 있을 수 있어요. 어느 방을 먼저 보든 선택은 계속 유지됩니다.</p>
+            <div class="room-doors">
+              <button class="room-door fulfilled" type="button" data-open-room="fulfilled" disabled>
+                <span><strong>충족 감정</strong><small>마음이 채워졌을 때 가까운 말</small></span>
+                <span class="room-door-count" data-room-count="fulfilled">—</span>
+              </button>
+              <button class="room-door unfulfilled" type="button" data-open-room="unfulfilled" disabled>
+                <span><strong>미충족 감정</strong><small>마음에 걸림이 남았을 때 가까운 말</small></span>
+                <span class="room-door-count" data-room-count="unfulfilled">—</span>
+              </button>
+              <button class="room-door needs" type="button" data-open-room="needs" disabled>
+                <span><strong>욕구</strong><small>지금 나에게 중요했던 것을 8개 영역에서</small></span>
+                <span class="room-door-count" data-room-count="needs">—</span>
+                <span class="need-preview" aria-label="욕구 8개 영역 미리보기">
+                  <span>자율성</span><span>신체·생존</span><span>사회·정서·상호의존</span><span>놀이·재미</span>
+                  <span>삶의 의미</span><span>진실성</span><span>아름다움·평화</span><span>자기구현</span>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div class="room-explorer" id="room-explorer" hidden>
+            <div class="room-top">
+              <button class="room-back" id="room-back" type="button">← 다른 방</button>
+              <h2 class="room-title" id="room-title">마음 방<span class="room-subtitle" id="room-subtitle" role="status" aria-live="polite">관련된 말끼리 천천히 살펴보세요</span></h2>
+            </div>
+            <div class="room-field" id="room-field"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="selection-bar" aria-live="polite">
+      <div class="selection-copy">
+        <span class="selection-count" id="selection-count">선택 0개</span>
+        <span class="selection-names" id="selection-names">아직 고른 단어가 없어요</span>
+      </div>
+      <button class="clear-button" id="clear" type="button">초기화</button>
+    </div>
+
+    <p class="prototype-note">구조 비교용 목업입니다. C는 충족 감정·미충족 감정·욕구를 섞지 않고 세 개의 마음 방으로 나누며, 관련된 말끼리 부드러운 유기형 도형으로 보여 줍니다. 카탈로그가 정상적으로 불러와진 뒤 세 안 모두 실제 271개와 연결됩니다. 저장 기능은 없으며 사용자 승인 전 참고 화면입니다.</p>
+  </main>
+
+  <div class="list-panel" id="list-panel" role="dialog" aria-modal="true" aria-labelledby="list-title">
+    <div class="list-sheet">
+      <h2 id="list-title">전체 감정·욕구 목록</h2>
+      <p class="list-note">공간 탐색이 불편할 때 사용할 동등한 목록 경로예요. 전체 271개를 검색하고 선택할 수 있습니다.</p>
+      <div class="list-items" id="list-items"></div>
+      <div class="sheet-actions"><button class="tool-button" id="close-list" type="button">목록 닫기</button></div>
+    </div>
+  </div>
+
+  <script>
+    const groupMeta = {
+      fulfilled: { title: '욕구 충족과 연결된 감정', tone: '#f6c85f' },
+      unfulfilled: { title: '욕구 미충족과 연결된 감정', tone: '#f18d7e' },
+      needs: { title: '욕구 · 8개 영역과 세부 욕구', tone: '#76d6b0' }
+    };
+    const needGroupLabels = {
+      autonomy: '자율성',
+      'physical-wellbeing': '신체적 안녕과 생존',
+      connection: '연결과 상호의존',
+      play: '놀이와 재미',
+      meaning: '삶의 의미',
+      integrity: '진실성과 자기존중',
+      peace: '아름다움과 평화',
+      growth: '자기구현과 성장'
+    };
+    const emotionGroupLabels = {
+      joy: '기쁨·감사·따뜻함',
+      confidence: '만족·활력·자신감',
+      calm: '편안·고요·여유',
+      worry: '걱정·염려',
+      fear: '두려움·막막함',
+      tension: '긴장·불편·난처함',
+      sadness: '슬픔·서운함·낙담',
+      loneliness: '외로움·허전함',
+      fatigue: '피로·무기력·좌절',
+      confusion: '혼란·당황',
+      anger: '화·분함·억울함'
+    };
+
+    const state = {
+      variant: 'c', selected: new Set(), category: null, query: '', sphereFilter: 'emotions',
+      rotationX: -0.18, rotationY: -0.52, sphereItems: [], dragMoved: false,
+      room: null, needRoom: null, roomCluster: null
+    };
+    let catalog = { fulfilled: [], unfulfilled: [], needs: [] };
+    let allWords = [];
+    let spherePoints = [];
+    let drag = null;
+    let listReturnFocus = null;
+
+    const sphereOrb = document.querySelector('#sphere-orb');
+    const categoryScreen = document.querySelector('#category-screen');
+    const portalScreen = document.querySelector('#portal-screen');
+    const categoryBubbles = document.querySelector('#category-bubbles');
+    const roomLobby = document.querySelector('#room-lobby');
+    const roomExplorer = document.querySelector('#room-explorer');
+    const roomField = document.querySelector('#room-field');
+    const listPanel = document.querySelector('#list-panel');
+    const openListButton = document.querySelector('#open-list');
+    const closeListButton = document.querySelector('#close-list');
+    const searchInput = document.querySelector('#search');
+    const catalogLoadStatus = document.querySelector('#catalog-load-status');
+
+    function keyOf(group, label) { return `${group}:${label}`; }
+
+    function setCatalogReady(ready, message, isError = false) {
+      searchInput.disabled = !ready;
+      openListButton.disabled = !ready;
+      document.querySelectorAll('[data-open-room], [data-open-category], .sphere-filter').forEach(button => { button.disabled = !ready; });
+      catalogLoadStatus.textContent = message;
+      catalogLoadStatus.classList.toggle('error', isError);
+      if (!ready) {
+        document.querySelectorAll('[data-room-count]').forEach(count => { count.textContent = '—'; });
+        return;
+      }
+      document.querySelector('[data-room-count="fulfilled"]').textContent = String(catalog.fulfilled.length);
+      document.querySelector('[data-room-count="unfulfilled"]').textContent = String(catalog.unfulfilled.length);
+      document.querySelector('[data-room-count="needs"]').textContent = String(new Set(catalog.needs.map(item => item.subgroup)).size);
+    }
+
+    function updateLobbySearchSummary() {
+      const counts = Object.fromEntries(Object.entries(catalog).map(([group, items]) => [
+        group,
+        items.filter(item => !state.query || item.label.includes(state.query)).length
+      ]));
+      document.querySelector('[data-room-count="fulfilled"]').textContent = String(counts.fulfilled);
+      document.querySelector('[data-room-count="unfulfilled"]').textContent = String(counts.unfulfilled);
+      document.querySelector('[data-room-count="needs"]').textContent = state.query
+        ? String(counts.needs)
+        : String(new Set(catalog.needs.map(item => item.subgroup)).size);
+      document.querySelectorAll('[data-open-room]').forEach(button => {
+        button.disabled = Boolean(state.query) && counts[button.dataset.openRoom] === 0;
+      });
+      catalogLoadStatus.textContent = state.query
+        ? `검색 결과: 충족 ${counts.fulfilled}개 · 미충족 ${counts.unfulfilled}개 · 욕구 ${counts.needs}개`
+        : '전체 감정·욕구 271개가 연결됐습니다.';
+    }
+
+    function parseSourceGroups(source, constantName, groupName) {
+      const start = source.indexOf(`const ${constantName} = [`);
+      const end = source.indexOf('] satisfies readonly SourceGroup', start);
+      if (start < 0 || end < 0) throw new Error(`${constantName} 원본을 찾을 수 없습니다.`);
+      const block = source.slice(start, end);
+      const items = [];
+      const groupPattern = /\['([^']+)',\s*\[([\s\S]*?)\]\]/g;
+      let groupMatch;
+      while ((groupMatch = groupPattern.exec(block))) {
+        const subgroup = groupMatch[1];
+        const labels = [...groupMatch[2].matchAll(/'([^']+)'/g)].map(match => match[1]);
+        labels.forEach(label => items.push({ group: groupName, subgroup, label, tone: groupMeta[groupName].tone }));
+      }
+      return items;
+    }
+
+    async function loadCatalog() {
+      const response = await fetch('/src/core/vocabulary/seed.ts', { cache: 'no-store' });
+      if (!response.ok) throw new Error(`카탈로그 응답 오류 ${response.status}`);
+      const source = await response.text();
+      catalog.fulfilled = parseSourceGroups(source, 'FULFILLED_EMOTION_GROUPS', 'fulfilled');
+      catalog.unfulfilled = parseSourceGroups(source, 'UNFULFILLED_EMOTION_GROUPS', 'unfulfilled');
+      catalog.needs = parseSourceGroups(source, 'NEED_GROUPS', 'needs');
+      allWords = [...catalog.fulfilled, ...catalog.unfulfilled, ...catalog.needs];
+      if (catalog.fulfilled.length !== 70 || catalog.unfulfilled.length !== 91 || catalog.needs.length !== 110 || allWords.length !== 271) {
+        throw new Error(`카탈로그 수 불일치: ${catalog.fulfilled.length}/${catalog.unfulfilled.length}/${catalog.needs.length}`);
+      }
+    }
+
+    function sphereDataset() {
+      const base = state.sphereFilter === 'emotions'
+        ? [...catalog.fulfilled, ...catalog.unfulfilled]
+        : catalog[state.sphereFilter];
+      return base.filter(item => !state.query || item.label.includes(state.query));
+    }
+
+    function makeSpherePoint(index, count) {
+      if (count === 1) return { x: 0, y: 0, z: 1 };
+      const y = 1 - (index / (count - 1)) * 2;
+      const radius = Math.sqrt(Math.max(0, 1 - y * y));
+      const theta = index * Math.PI * (3 - Math.sqrt(5));
+      return { x: Math.cos(theta) * radius, y, z: Math.sin(theta) * radius };
+    }
+
+    function createSphere() {
+      sphereOrb.innerHTML = '';
+      state.sphereItems = sphereDataset();
+      spherePoints = state.sphereItems.map((_, index) => makeSpherePoint(index, state.sphereItems.length));
+      state.sphereItems.forEach(item => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'sphere-word';
+        button.textContent = item.label;
+        button.dataset.key = keyOf(item.group, item.label);
+        button.dataset.label = item.label;
+        button.dataset.group = item.group;
+        button.style.setProperty('--tone', item.tone);
+        button.style.width = item.label.length > 10 ? '112px' : item.label.length > 6 ? '94px' : '76px';
+        button.setAttribute('aria-pressed', state.selected.has(button.dataset.key) ? 'true' : 'false');
+        button.addEventListener('click', () => {
+          if (!state.dragMoved) toggleSelection(item.group, item.label);
+        });
+        sphereOrb.appendChild(button);
+      });
+      const total = state.sphereItems.length;
+      const label = state.sphereFilter === 'emotions' ? '전체 감정' : groupMeta[state.sphereFilter].title;
+      document.querySelector('#catalog-status').textContent = `${label} ${total}개 연결 · 구를 돌려 모두 확인`;
+      renderSphere();
+    }
+
+    function renderSphere() {
+      const cosY = Math.cos(state.rotationY);
+      const sinY = Math.sin(state.rotationY);
+      const cosX = Math.cos(state.rotationX);
+      const sinX = Math.sin(state.rotationX);
+      const radius = Math.min(148, sphereOrb.clientWidth * 0.41);
+      const buttons = sphereOrb.querySelectorAll('.sphere-word');
+      const projections = spherePoints.map((point, index) => {
+        const x1 = point.x * cosY + point.z * sinY;
+        const z1 = -point.x * sinY + point.z * cosY;
+        const y2 = point.y * cosX - z1 * sinX;
+        const z2 = point.y * sinX + z1 * cosX;
+        const scale = 0.82 + ((z2 + 1) / 2) * 0.34;
+        const button = buttons[index];
+        const baseWidth = Number.parseFloat(button.style.width) || 76;
+        return {
+          index, x: x1 * radius, y: y2 * radius, z: z2, scale,
+          width: baseWidth * scale + 12,
+          height: 46 * scale + 12
+        };
+      });
+      const maxVisible = sphereOrb.clientWidth < 340 ? 9 : 12;
+      const placed = [];
+
+      projections
+        .filter(item => item.z > 0.05)
+        .sort((a, b) => b.z - a.z)
+        .forEach(item => {
+          if (placed.length >= maxVisible) return;
+          const overlaps = placed.some(other =>
+            Math.abs(item.x - other.x) < (item.width + other.width) * 0.38 &&
+            Math.abs(item.y - other.y) < (item.height + other.height) * 0.52
+          );
+          if (!overlaps) placed.push(item);
+        });
+
+      const visibleIndexes = new Set(placed.map(item => item.index));
+      projections.forEach(item => {
+        const visible = visibleIndexes.has(item.index);
+        const button = buttons[item.index];
+        button.style.transform = `translate(-50%, -50%) translate(${item.x}px, ${item.y}px) scale(${item.scale})`;
+        button.style.opacity = visible ? '1' : '0';
+        button.style.zIndex = String(Math.round((item.z + 1) * 100));
+        button.style.pointerEvents = visible ? 'auto' : 'none';
+        button.tabIndex = visible ? 0 : -1;
+        button.setAttribute('aria-hidden', visible ? 'false' : 'true');
+      });
+      const total = state.sphereItems.length;
+      const label = state.sphereFilter === 'emotions' ? '전체 감정' : groupMeta[state.sphereFilter].title;
+      document.querySelector('#catalog-status').textContent = `${label} ${total}개 · 지금 읽을 수 있는 ${placed.length}개`;
+    }
+
+    function bubbleButton(item) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'bubble';
+      button.textContent = item.label;
+      button.dataset.key = keyOf(item.group, item.label);
+      button.dataset.label = item.label;
+      button.dataset.group = item.group;
+      button.style.setProperty('--tone', item.tone);
+      button.setAttribute('aria-pressed', state.selected.has(button.dataset.key) ? 'true' : 'false');
+      button.hidden = state.query && !item.label.includes(state.query);
+      button.addEventListener('click', () => toggleSelection(item.group, item.label));
+      return button;
+    }
+
+    function renderCategory(group) {
+      state.category = group;
+      document.querySelector('#category-title').textContent = groupMeta[group].title;
+      categoryBubbles.innerHTML = '';
+      catalog[group].forEach(item => categoryBubbles.appendChild(bubbleButton(item)));
+      portalScreen.style.display = 'none';
+      categoryScreen.classList.add('active');
+    }
+
+    function roomWordButton(item, index) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = `room-word ${item.group} shape-${index % 4}`;
+      button.textContent = item.label;
+      button.dataset.key = keyOf(item.group, item.label);
+      button.dataset.label = item.label;
+      button.dataset.group = item.group;
+      const span = item.label.length >= 9 ? 7 : item.label.length >= 6 ? 6 : 4 + (index % 2);
+      button.style.setProperty('--word-span', String(span));
+      button.setAttribute('aria-pressed', state.selected.has(button.dataset.key) ? 'true' : 'false');
+      button.addEventListener('click', () => toggleSelection(item.group, item.label));
+      return button;
+    }
+
+    function appendWordClusters(items, labels) {
+      const subgroupOrder = [...new Set(items.map(item => item.subgroup))];
+      let visibleCount = 0;
+      subgroupOrder.forEach(subgroup => {
+        const subgroupItems = items.filter(item => item.subgroup === subgroup && (!state.query || item.label.includes(state.query)));
+        if (!subgroupItems.length) return;
+        visibleCount += subgroupItems.length;
+        const section = document.createElement('section');
+        section.className = 'word-cluster';
+        const heading = document.createElement('h3');
+        heading.className = 'cluster-title';
+        heading.textContent = labels[subgroup] ?? subgroup;
+        const words = document.createElement('div');
+        words.className = 'cluster-words';
+        subgroupItems.forEach((item, index) => words.appendChild(roomWordButton(item, index)));
+        section.append(heading, words);
+        roomField.appendChild(section);
+      });
+      return visibleCount;
+    }
+
+    function renderEmotionClusterPicker(items, labels) {
+      const subgroupOrder = [...new Set(items.map(item => item.subgroup))];
+      if (!state.roomCluster || !subgroupOrder.includes(state.roomCluster)) state.roomCluster = subgroupOrder[0];
+
+      const copy = document.createElement('p');
+      copy.className = 'emotion-cluster-copy';
+      copy.textContent = '먼저 지금 마음과 가까운 결을 고른 뒤, 그 안의 세부 단어를 천천히 살펴보세요.';
+
+      const picker = document.createElement('div');
+      picker.className = 'emotion-cluster-map';
+      picker.setAttribute('role', 'group');
+      picker.setAttribute('aria-label', '감정의 결 선택');
+
+      subgroupOrder.forEach(subgroup => {
+        const count = items.filter(item => item.subgroup === subgroup).length;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'emotion-cluster-button';
+        button.dataset.emotionCluster = subgroup;
+        button.textContent = `${labels[subgroup] ?? subgroup} · ${count}`;
+        button.setAttribute('aria-pressed', state.roomCluster === subgroup ? 'true' : 'false');
+        button.addEventListener('click', () => {
+          state.roomCluster = subgroup;
+          renderRoom();
+          requestAnimationFrame(() => {
+            const selected = document.querySelector(`[data-emotion-cluster="${subgroup}"]`);
+            if (selected instanceof HTMLElement) selected.focus();
+          });
+        });
+        picker.appendChild(button);
+      });
+
+      const section = document.createElement('section');
+      section.className = 'word-cluster';
+      const heading = document.createElement('h3');
+      heading.className = 'cluster-title';
+      heading.textContent = labels[state.roomCluster] ?? state.roomCluster;
+      const words = document.createElement('div');
+      words.className = 'cluster-words';
+      const selectedItems = items.filter(item => item.subgroup === state.roomCluster);
+      selectedItems.forEach((item, index) => words.appendChild(roomWordButton(item, index)));
+      section.append(heading, words);
+      roomField.append(copy, picker, section);
+      return selectedItems.length;
+    }
+
+    function renderNeedDoors() {
+      const needGroups = [...new Set(catalog.needs.map(item => item.subgroup))];
+      const intro = document.createElement('p');
+      intro.className = 'need-lobby-copy';
+      intro.textContent = '욕구는 먼저 8개 영역을 보고, 눈이 머무는 곳에 들어가 세부 말을 살펴봅니다.';
+      const doors = document.createElement('div');
+      doors.className = 'need-doors';
+      needGroups.forEach(subgroup => {
+        const count = catalog.needs.filter(item => item.subgroup === subgroup && (!state.query || item.label.includes(state.query))).length;
+        if (!count) return;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'need-door';
+        button.dataset.needRoom = subgroup;
+        button.innerHTML = `${needGroupLabels[subgroup]}<small>${count}개 말</small>`;
+        button.addEventListener('click', () => {
+          state.needRoom = subgroup;
+          renderRoom();
+          requestAnimationFrame(() => document.querySelector('#room-back').focus());
+        });
+        doors.appendChild(button);
+      });
+      roomField.append(intro, doors);
+    }
+
+    function renderRoom() {
+      if (!state.room) return;
+      roomLobby.hidden = true;
+      roomExplorer.hidden = false;
+      roomField.innerHTML = '';
+      roomField.scrollTop = 0;
+
+      if (state.room === 'needs' && !state.needRoom) {
+        document.querySelector('#room-title').childNodes[0].nodeValue = '욕구의 방';
+        document.querySelector('#room-subtitle').textContent = '8개 영역 · 세부 욕구 110개';
+        document.querySelector('#room-back').textContent = '← 다른 방';
+        renderNeedDoors();
+        return;
+      }
+
+      if (state.room === 'needs') {
+        const items = catalog.needs.filter(item => item.subgroup === state.needRoom);
+        const filteredItems = items.filter(item => !state.query || item.label.includes(state.query));
+        document.querySelector('#room-title').childNodes[0].nodeValue = needGroupLabels[state.needRoom];
+        document.querySelector('#room-subtitle').textContent = `욕구 ${items.length}개 · 다른 영역으로 되돌아갈 수 있어요`;
+        document.querySelector('#room-back').textContent = '← 욕구 8개 영역';
+        const words = document.createElement('div');
+        words.className = 'cluster-words';
+        filteredItems.forEach((item, index) => words.appendChild(roomWordButton(item, index)));
+        roomField.appendChild(words);
+        if (!filteredItems.length) roomField.innerHTML = '<p class="room-empty">이 영역에서 검색어와 가까운 말을 찾지 못했어요.</p>';
+        return;
+      }
+
+      const items = catalog[state.room];
+      document.querySelector('#room-title').childNodes[0].nodeValue = state.room === 'fulfilled' ? '충족 감정의 방' : '미충족 감정의 방';
+      const subgroupCount = new Set(items.map(item => item.subgroup)).size;
+      document.querySelector('#room-subtitle').textContent = state.query
+        ? `검색 결과를 감정 결별로 표시 · 전체 ${items.length}개`
+        : `${subgroupCount}개 감정의 결 · 전체 ${items.length}개`;
+      document.querySelector('#room-back').textContent = '← 다른 방';
+      const visibleCount = state.query
+        ? appendWordClusters(items, emotionGroupLabels)
+        : renderEmotionClusterPicker(items, emotionGroupLabels);
+      if (!visibleCount) roomField.innerHTML = '<p class="room-empty">이 방에서 검색어와 가까운 말을 찾지 못했어요. 다른 방을 살펴보거나 검색어를 지워 보세요.</p>';
+    }
+
+    function openRoom(group) {
+      state.room = group;
+      state.needRoom = null;
+      state.roomCluster = null;
+      renderRoom();
+      requestAnimationFrame(() => document.querySelector('#room-back').focus());
+    }
+
+    function renderList() {
+      const list = document.querySelector('#list-items');
+      list.innerHTML = '';
+      allWords.filter(item => !state.query || item.label.includes(state.query)).forEach(item => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = item.label;
+        button.dataset.key = keyOf(item.group, item.label);
+        button.dataset.group = item.group;
+        button.dataset.label = item.label;
+        button.setAttribute('aria-pressed', state.selected.has(button.dataset.key) ? 'true' : 'false');
+        button.addEventListener('click', () => toggleSelection(item.group, item.label));
+        list.appendChild(button);
+      });
+    }
+
+    function openList() {
+      listReturnFocus = document.activeElement;
+      renderList();
+      listPanel.classList.add('open');
+      closeListButton.focus();
+    }
+
+    function closeList() {
+      listPanel.classList.remove('open');
+      if (listReturnFocus instanceof HTMLElement && !listReturnFocus.disabled) listReturnFocus.focus();
+      listReturnFocus = null;
+    }
+
+    function toggleSelection(group, label) {
+      const key = keyOf(group, label);
+      state.selected.has(key) ? state.selected.delete(key) : state.selected.add(key);
+      syncSelection();
+    }
+
+    function syncSelection() {
+      document.querySelectorAll('[data-key]').forEach(button => button.setAttribute('aria-pressed', state.selected.has(button.dataset.key) ? 'true' : 'false'));
+      const labels = [...state.selected].map(key => key.split(':').slice(1).join(':'));
+      document.querySelector('#selection-count').textContent = `선택 ${labels.length}개`;
+      document.querySelector('#selection-names').textContent = labels.length ? labels.join(' · ') : '아직 고른 단어가 없어요';
+    }
+
+    document.querySelectorAll('.variant-tab').forEach(tab => tab.addEventListener('click', () => {
+      state.variant = tab.dataset.variant;
+      document.querySelectorAll('.variant-tab').forEach(candidate => candidate.setAttribute('aria-selected', candidate === tab ? 'true' : 'false'));
+      document.querySelectorAll('.variant').forEach(panel => panel.classList.toggle('active', panel.id === `variant-${state.variant}`));
+      if (state.variant === 'b') {
+        categoryScreen.classList.remove('active');
+        portalScreen.style.display = '';
+      } else if (state.variant === 'a') {
+        requestAnimationFrame(renderSphere);
+      }
+    }));
+
+    document.querySelectorAll('.sphere-filter').forEach(button => button.addEventListener('click', () => {
+      state.sphereFilter = button.dataset.sphereFilter;
+      document.querySelectorAll('.sphere-filter').forEach(candidate => candidate.setAttribute('aria-pressed', candidate === button ? 'true' : 'false'));
+      createSphere();
+    }));
+
+    document.querySelectorAll('[data-open-category]').forEach(button => button.addEventListener('click', () => renderCategory(button.dataset.openCategory)));
+    document.querySelector('#category-back').addEventListener('click', () => {
+      categoryScreen.classList.remove('active');
+      portalScreen.style.display = '';
+    });
+
+    searchInput.addEventListener('input', event => {
+      state.query = event.target.value.trim();
+      createSphere();
+      if (state.category) renderCategory(state.category);
+      if (state.room) renderRoom();
+      renderList();
+      updateLobbySearchSummary();
+    });
+
+    document.querySelectorAll('[data-open-room]').forEach(button => button.addEventListener('click', () => openRoom(button.dataset.openRoom)));
+    document.querySelector('#room-back').addEventListener('click', () => {
+      if (state.room === 'needs' && state.needRoom) {
+        const previousNeedRoom = state.needRoom;
+        state.needRoom = null;
+        renderRoom();
+        requestAnimationFrame(() => {
+          const previousNeedButton = document.querySelector(`[data-need-room="${previousNeedRoom}"]`);
+          if (previousNeedButton && !previousNeedButton.disabled) previousNeedButton.focus();
+          else searchInput.focus();
+        });
+        return;
+      }
+      const previousRoom = state.room;
+      state.room = null;
+      roomExplorer.hidden = true;
+      roomLobby.hidden = false;
+      requestAnimationFrame(() => {
+        const previousRoomButton = document.querySelector(`[data-open-room="${previousRoom}"]`);
+        if (previousRoomButton && !previousRoomButton.disabled) previousRoomButton.focus();
+        else searchInput.focus();
+      });
+    });
+
+    document.querySelector('#clear').addEventListener('click', () => { state.selected.clear(); syncSelection(); });
+    openListButton.addEventListener('click', openList);
+    closeListButton.addEventListener('click', closeList);
+    listPanel.addEventListener('click', event => { if (event.target === listPanel) closeList(); });
+    listPanel.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeList();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const focusable = [...listPanel.querySelectorAll('button:not([disabled])')];
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+
+    sphereOrb.addEventListener('pointerdown', event => {
+      drag = { x: event.clientX, y: event.clientY, rx: state.rotationX, ry: state.rotationY };
+      state.dragMoved = false;
+      sphereOrb.setPointerCapture(event.pointerId);
+      sphereOrb.classList.add('dragging');
+    });
+    sphereOrb.addEventListener('pointermove', event => {
+      if (!drag) return;
+      const dx = event.clientX - drag.x;
+      const dy = event.clientY - drag.y;
+      if (Math.abs(dx) + Math.abs(dy) > 5) state.dragMoved = true;
+      state.rotationY = drag.ry + dx * 0.012;
+      state.rotationX = Math.max(-1.25, Math.min(1.25, drag.rx - dy * 0.012));
+      renderSphere();
+    });
+    sphereOrb.addEventListener('pointerup', () => {
+      drag = null;
+      sphereOrb.classList.remove('dragging');
+      setTimeout(() => { state.dragMoved = false; }, 0);
+    });
+
+    setCatalogReady(false, '전체 감정·욕구 271개를 불러오는 중입니다.');
+    loadCatalog().then(() => {
+      setCatalogReady(true, '전체 감정·욕구 271개가 연결됐습니다.');
+      createSphere();
+      renderList();
+      syncSelection();
+    }).catch(error => {
+      document.querySelector('#catalog-status').textContent = `카탈로그를 불러오지 못했어요: ${error.message}`;
+      setCatalogReady(false, '감정·욕구 목록을 불러오지 못했어요. 로컬 서버를 확인하고 새로고침해 주세요.', true);
+      console.error(error);
+    });
+  </script>
+</body>
+</html>
