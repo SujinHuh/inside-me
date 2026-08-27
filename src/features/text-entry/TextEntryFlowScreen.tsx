@@ -23,7 +23,7 @@ import type {
 } from '@/src/core/contracts';
 import type { SelfExplorationService } from '@/src/application/exploration/self-exploration-service';
 import { borders, colors, spacing, typography, typeScale } from '@/src/ui/tokens';
-import { WholeEmotionNeedsMap, type MapSectionId } from '../emotion-review/WholeEmotionNeedsMap';
+import { EmotionExplorationRooms } from '../emotion-review/EmotionExplorationRooms';
 import { AssistantExplorationPanel } from './AssistantExplorationPanel';
 import { useAssistantExploration } from './useAssistantExploration';
 
@@ -95,8 +95,6 @@ export function TextEntryFlowScreen({
   const mounted = useRef(true);
   const saveInFlight = useRef(false);
   const scrollView = useRef<ScrollView>(null);
-  const mapOffset = useRef(0);
-  const mapSectionOffsets = useRef<Partial<Record<MapSectionId, number>>>({});
   const assistant = useAssistantExploration({ initialDraft, selfExploration });
 
   useEffect(() => {
@@ -142,6 +140,16 @@ export function TextEntryFlowScreen({
   function removeNeed(id: string) {
     assistant.removeAcceptedNeed(id);
     setNeeds((current) => current.filter((choice) => choice.id !== id));
+    setMessage(null);
+  }
+
+  function resetManualSelections() {
+    for (const selected of emotions) assistant.removeAcceptedEmotion(selected.choice.id);
+    for (const selected of needs) assistant.removeAcceptedNeed(selected.id);
+    setEmotions([]);
+    setNeeds([]);
+    setRepresentativeEmotionId(null);
+    setEmotionUnknown(false);
     setMessage(null);
   }
 
@@ -347,13 +355,18 @@ export function TextEntryFlowScreen({
 
           {step === 'emotions' && (
             <>
-              <Text style={styles.heading}>전체 지도에서 내 마음을 찾아보세요.</Text>
-              <Text style={styles.description}>충족·미충족 느낌과 욕구 8개 영역을 한 번에 보고 서로 다른 곳에서 여러 개를 골라도 돼요.</Text>
-              <WholeEmotionNeedsMap
+              <Text style={styles.heading}>지금 눈이 머무는 마음부터 들어가 보세요.</Text>
+              <Text style={styles.description}>어느 방도 정답은 아니에요. 방을 오가며 여러 감정과 욕구를 함께 골라도 괜찮아요.</Text>
+              <EmotionExplorationRooms
                 onAdd={addCustomChoice}
+                onResetSelections={resetManualSelections}
                 onToggle={toggleVocabularyItem}
                 selectedEmotionIds={selectedEmotionIds}
                 selectedNeedIds={selectedNeedIds}
+                selectedLabels={[
+                  ...emotions.map(({ choice }) => choice.label),
+                  ...needs.map((choice) => choice.label),
+                ]}
                 vocabulary={vocabulary}
                 emotionUnknown={emotionUnknown}
                 onToggleEmotionUnknown={() => {
@@ -362,23 +375,8 @@ export function TextEntryFlowScreen({
                     setMessage(null);
                     return;
                   }
-                  for (const selected of emotions) assistant.removeAcceptedEmotion(selected.choice.id);
-                  setEmotions([]);
-                  setRepresentativeEmotionId(null);
+                  resetManualSelections();
                   setEmotionUnknown(true);
-                  setMessage(null);
-                }}
-                onJumpToSection={(sectionId) => {
-                  const sectionOffset = mapSectionOffsets.current[sectionId];
-                  if (sectionOffset === undefined) return;
-                  scrollView.current?.scrollTo({
-                    animated: true,
-                    y: Math.max(0, mapOffset.current + sectionOffset - spacing.sm),
-                  });
-                }}
-                onMapLayout={(event) => { mapOffset.current = event.nativeEvent.layout.y; }}
-                onSectionLayout={(sectionId, event) => {
-                  mapSectionOffsets.current[sectionId] = event.nativeEvent.layout.y;
                 }}
               />
               {emotions.map(({ choice, intensity }) => (
@@ -531,7 +529,7 @@ export function TextEntryFlowScreen({
 function stepTitle(step: FlowStep): string {
   switch (step) {
     case 'story': return '글로 기록하기';
-    case 'emotions': return '한 장 마음 지도';
+    case 'emotions': return '세 개의 마음 방';
     case 'assistant-consent': return 'AI 도움 확인';
     case 'assistant-results': return 'AI 보조 후보';
     case 'confirm': return '내 선택 확인하기';

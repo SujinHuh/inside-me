@@ -114,7 +114,9 @@ describe('Expo AI HTTP fake 조합', () => {
       '합성 화면 통합 상황에서 마음이 복잡했다.',
     );
     fireEvent.press(screen.getByRole('button', { name: '감정 살펴보기' }));
+    fireEvent.changeText(screen.getByLabelText('감정과 욕구 전체 검색'), '기쁜');
     fireEvent.press(screen.getByLabelText('기쁜 선택'));
+    fireEvent.changeText(screen.getByLabelText('감정과 욕구 전체 검색'), '휴식');
     fireEvent.press(screen.getByLabelText('휴식 선택'));
     fireEvent.press(screen.getByRole('button', { name: 'AI와 더 살펴보기' }));
 
