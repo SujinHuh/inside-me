@@ -1,7 +1,7 @@
 # Inside Me 문서 안내
 
 - 상태: 문서 탐색의 단일 원본
-- 최종 확인일: 2026-08-26
+- 최종 확인일: 2026-08-27
 
 ## 목적
 
@@ -18,7 +18,7 @@
 | Android 실기기 통합 검증 | [실기기 체크리스트](device-validation-checklist.md) | [구현 계획](implementation-plan.md)의 `IMP-106` |
 | 의존성·Node·Expo·빌드 설정 변경 | [의존성 기준](dependencies.md) | [`package.json`](../package.json), [`package-lock.json`](../package-lock.json), [`.nvmrc`](../.nvmrc) |
 | 일반 UI 설계·구현·검수 | [Hallmark](references/hallmark.md), [Windows Classic UI](references/windows-classic-ui.md) | [제품 요구사항](requirements.md)의 UI 원칙, [UI QA 근거](references/ui-qa-standards.md) |
-| 감정·욕구 탐색 UI | [감정·욕구 이미지 참고](references/emotion-needs-vocabulary-images.md), [전체 카탈로그 대조](references/emotion-needs-vocabulary-catalog.md), [A·B·C 시안 비교와 C안 선택 기록](references/emotion-map-candidate-comparison.md) | [버블 감정 지도 참고](references/bubble-emotion-map.md), [UI 상용화 지식재산 위험](references/ui-ip-risk-review.md), [감정 달력 화면 참고](references/emotion-calendar-app-screens.md), `REQ-029`, `DEC-037`, `DEC-055`, `DEC-060`, `DEC-061`, `DEC-062`, `DEC-063`, `DEC-064`, `Q-034`, `Q-035` |
+| 감정·욕구 탐색 UI | [감정·욕구 이미지 참고](references/emotion-needs-vocabulary-images.md), [전체 카탈로그 대조](references/emotion-needs-vocabulary-catalog.md), [A·B·C 시안 비교와 C안 선택 기록](references/emotion-map-candidate-comparison.md) | [버블 감정 지도 참고](references/bubble-emotion-map.md), [UI 상용화 지식재산 위험](references/ui-ip-risk-review.md), [감정 달력 화면 참고](references/emotion-calendar-app-screens.md), `REQ-029`, `DEC-037`, `DEC-055(DEC-064로 대체)`, `DEC-060`, `DEC-061`, `DEC-062`, `DEC-063`, `DEC-064`, `Q-034`, `Q-035` |
 | UI 반응형·상호작용 브라우저 보조 QA | [UI 브라우저 보조 QA 가이드](ui-qa-guide.md) | [UI QA 근거](references/ui-qa-standards.md), [실기기 체크리스트](device-validation-checklist.md), [개발 워크플로](development-workflow.md) |
 | AI 공급자·개인정보·비용 결정 | [미결정 질문](open-questions.md)의 `Q-013` | [공급자 비교](references/ai-provider-comparison.md), [3모드 비용 추정](references/ai-mode-cost-estimate.md), `DEC-048`, `DEC-049` |
 | AI 응답 계약·합성 평가 | [구현 계획](implementation-plan.md)의 `IMP-204S` | [제품 요구사항](requirements.md)의 AI 원칙, `DEC-037`, `DEC-047`, `DEC-048`, [클린 코드 지침](clean-code-guidelines.md) |
