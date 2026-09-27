@@ -14,6 +14,7 @@
 | 제품 아이디어·요구사항 변경 | [제품 요구사항](requirements.md) | 관련 [결정 로그](decisions.md), [미결정 질문](open-questions.md), 최근 [제품 로그](product-log.md) |
 | 제품 로그 추가·과거 LOG 조회 | [개발 워크플로의 로그 작성 규칙](development-workflow.md#제품-로그-작성-규칙), [현재 제품 로그](product-log.md)의 상단 안내 | 2026-09-07 이전 LOG의 상세 맥락이 필요할 때만 [장문 보관본](archive/product-log-legacy-20260818-20260905.md)에서 해당 ID 검색 |
 | 다음 구현 선택·완료 상태 확인 | [구현 계획](implementation-plan.md) | [개발 워크플로](development-workflow.md), [클린 코드 지침](clean-code-guidelines.md) |
+| 개발한 순서대로 직접 코드 리뷰 | [개발 순서 — 코드 리뷰 안내](development-order.md) | 해당 구현 커밋·코드·테스트, [구현 계획](implementation-plan.md)의 완료 증거, [개인 리뷰 기록 규칙](development-workflow.md#개발-순서와-개인-코드-리뷰-기록) |
 | 문서 추가·수정 또는 구현 뒤 최신 상태 점검 | [개발 워크플로](development-workflow.md)의 문서 최신화 게이트 | 이 목차의 문서별 원본 책임, [구현 계획](implementation-plan.md), 관련 요구사항·결정·질문·제품 로그 |
 | POC·프로토타입·MVP 단계와 승격 기준 확인 | [제품 개발 단계](product-development-stages.md) | [구현 계획](implementation-plan.md), [UI QA 가이드](ui-qa-guide.md), [실기기 체크리스트](device-validation-checklist.md) |
 | 외부에서 폰으로 원격 개발 | [구현 계획](implementation-plan.md)의 현재 실행 환경과 포인터 | [개발 워크플로](development-workflow.md)의 외부·폰 원격 모드 |
@@ -41,6 +42,7 @@
 | `docs/archive/product-log-legacy-20260818-20260905.md` | 2026-08-18~09-05 장문 기록 160개의 보관본. 신규 기록을 추가하지 않으며 과거 LOG의 맥락 확인에만 사용 |
 | `docs/open-questions.md` | 사용자 답변이나 프로토타입 검증이 필요한 질문 |
 | `docs/implementation-plan.md` | 구현 단계, 실행 상태 원장, 완료 증거와 다음 작업 |
+| `docs/development-order.md` | 실제 개발 이력의 번호·병렬 묶음·코드 및 테스트 탐색 경로와 사용자 본인의 코드 리뷰 상태. 구현 상태의 원본은 구현 계획 |
 | `docs/development-workflow.md` | 역할, 병렬 실행, 통합, 검증, 제품 로그 작성 규칙, 필요한 문서만 읽는 방법, Git·PR과 인계 방식 |
 | `docs/clean-code-guidelines.md` | 계층, 런타임 데이터 경계, 이름·타입과 테스트 구조 기준 |
 | `docs/dependencies.md` | Node·npm·Expo와 직접 의존성의 선택 근거·버전·감사 결과 |
