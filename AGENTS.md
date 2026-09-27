@@ -19,6 +19,7 @@ AI는 사용자의 마음을 판정하거나 진단하는 역할이 아니다. �
 - `docs/open-questions.md`: 답이 필요한 질문과 프로토타입 후 검증할 질문
 - `docs/references/`: 사용자가 제공했거나 제품 근거로 채택한 참고자료
 - `docs/implementation-plan.md`: 사용자의 행동으로 풀어 쓴 구현 순서, 단계별 완료 기준과 다음 작업 인계
+- `docs/development-order.md`: 이미 개발한 순서·병렬 묶음·코드 탐색과 사용자 본인의 리뷰 상태. 사용자 리뷰 완료는 명시적 확인 없이 대신 표시하지 않는다.
 - `docs/development-workflow.md`: 역할별 책임, 병렬 작업, 통합, 검증, 지속 구현 루프와 인계 형식
 - `docs/clean-code-guidelines.md`: 계층 방향, 런타임 데이터 경계, 이름·타입·테스트 구조의 반복 품질 기준
 - `docs/dependencies.md`: Node·npm·Expo와 직접 의존성의 버전·선택 근거·감사 결과
